@@ -23,17 +23,20 @@
 """This module defines base classes used by all logging backends."""
 
 import os
-import imp
+import importlib
 
 from pykota.errors import PyKotaLoggingError
 
 def openLogger(backend) :
     """Returns the appropriate logger subsystem object."""
     try :
-        loggingbackend = imp.load_source("loggingbackend",
-                                         os.path.join(os.path.dirname(__file__),
-                                                      "loggers",
-                                                      "%s.py" % backend.lower()))
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("loggingbackend",
+                                                     os.path.join(os.path.dirname(__file__),
+                                                                  "loggers",
+                                                                  "%s.py" % backend.lower()))
+        loggingbackend = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(loggingbackend)
     except ImportError :
         raise PyKotaLoggingError(_("Unsupported logging subsystem %s") % backend)
     else :
