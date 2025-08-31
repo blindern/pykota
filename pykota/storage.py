@@ -183,7 +183,7 @@ class StoragePrinter(StorageObject) :
             self.parent.tool.logdebug("Lazy retrieval of coefficients for printer %s : %s" % (self.Name, self.Coefficients))
             return self.Coefficients
         else :
-            raise AttributeError, name
+            raise AttributeError(name)
 
     def addJobToHistory(self, jobid, user, pagecounter, action, jobsize=None, jobprice=None, filename=None, title=None, copies=None, options=None, clienthost=None, jobsizebytes=None, jobmd5sum=None, jobpages=None, jobbilling=None, precomputedsize=None, precomputedprice=None) :
         """Adds a job to the printer's history."""
@@ -258,7 +258,7 @@ class StorageUserPQuota(StorageObject) :
             self.ParentPrintersUserPQuota = (self.User.Exists and self.Printer.Exists and self.parent.getParentPrintersUserPQuota(self)) or []
             return self.ParentPrintersUserPQuota
         else :
-            raise AttributeError, name
+            raise AttributeError(name)
 
     def setDateLimit(self, datelimit) :
         """Sets the date limit for this quota."""
@@ -391,7 +391,7 @@ class StorageGroupPQuota(StorageObject) :
             self.ParentPrintersGroupPQuota = (self.Group.Exists and self.Printer.Exists and self.parent.getParentPrintersGroupPQuota(self)) or []
             return self.ParentPrintersGroupPQuota
         else :
-            raise AttributeError, name
+            raise AttributeError(name)
 
     def reset(self) :
         """Resets page counter to 0."""
@@ -474,7 +474,7 @@ class StorageJob(StorageObject) :
             self.Printer = self.parent.getPrinter(self.PrinterName)
             return self.Printer
         else :
-            raise AttributeError, name
+            raise AttributeError(name)
 
     def refund(self, reason) :
         """Refund a particular print job."""
@@ -565,7 +565,7 @@ class BaseStorage :
 
     def close(self) :
         """Must be overriden in children classes."""
-        raise RuntimeError, "BaseStorage.close() must be overriden !"
+        raise RuntimeError("BaseStorage.close() must be overriden !")
 
     def __del__(self) :
         """Ensures that the database connection is closed."""
@@ -838,7 +838,7 @@ def openConnection(pykotatool) :
                                                       "storages",
                                                       "%s.py" % backend.lower()))
     except ImportError :
-        raise PyKotaStorageError, _("Unsupported quota storage backend %s") % backend
+        raise PyKotaStorageError(_("Unsupported quota storage backend %s") % backend)
     else :
         host = backendinfo["storageserver"]
         database = backendinfo["storagename"]

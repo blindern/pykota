@@ -31,9 +31,9 @@ import smtplib
 import locale
 import socket
 import time
-from email.MIMEText import MIMEText
-from email.Header import Header
-import email.Utils
+from email.mime.text import MIMEText
+from email.header import Header
+import email.utils as email_Utils
 
 from mx import DateTime
 
@@ -63,7 +63,7 @@ class Tool :
         uid = os.geteuid()
         try :
             self.effectiveUserName = pwd.getpwuid(uid)[0]
-        except (KeyError, IndexError), msg :
+        except (KeyError, IndexError) as msg :
             self.printInfo(_("Strange problem with uid(%s) : %s") % (uid, msg), "warn")
             self.effectiveUserName = os.getlogin()
 
@@ -127,7 +127,7 @@ class Tool :
     def adminOnly(self, restricted=True) :
         """Raises an exception if the user is not a PyKota administrator."""
         if restricted and not self.config.isAdmin :
-            raise PyKotaCommandLineError, "%s : %s" % (pwd.getpwuid(os.geteuid())[0], _("You're not allowed to use this command."))
+            raise PyKotaCommandLineError("%s : %s" % (pwd.getpwuid(os.geteuid())[0], _("You're not allowed to use this command.")))
 
     def matchString(self, s, patterns) :
         """Returns True if the string s matches one of the patterns, else False."""
@@ -188,7 +188,7 @@ class Tool :
                 msg["From"] = admin
                 msg["To"] = crashrecipient
                 msg["Cc"] = admin
-                msg["Date"] = email.Utils.formatdate(localtime=True)
+                msg["Date"] = email_Utils.formatdate(localtime=True)
                 server.sendmail(admin, [admin, crashrecipient], msg.as_string())
                 server.quit()
         except :
@@ -250,11 +250,11 @@ class Tool :
                             parsed[o] = 1
                         else :
                             # should never occur
-                            raise PyKotaCommandLineError, "Unexpected problem when parsing command line"
+                            raise PyKotaCommandLineError("Unexpected problem when parsing command line")
                 elif (not args) and (not allownothing) and sys.stdin.isatty() : # no option and no argument, we display help if we are a tty
                     self.display_usage_and_quit()
-            except getopt.error, msg :
-                raise PyKotaCommandLineError, str(msg)
+            except getopt.error as msg :
+                raise PyKotaCommandLineError(str(msg))
             else :
                 if parsed["arguments"] or parsed["A"] :
                     # arguments are in a file, we ignore all other arguments

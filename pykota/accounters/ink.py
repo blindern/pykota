@@ -52,12 +52,12 @@ class Accounter(AccounterBase) :
         (colorspace, resolution) = parameters
         colorspace = colorspace.lower()
         if colorspace not in ("cmyk", "bw", "cmy", "rgb", "gc") :
-            raise PyKotaAccounterError, _("Invalid parameters for ink accounter : [%s]") % self.arguments
+            raise PyKotaAccounterError(_("Invalid parameters for ink accounter : [%s]") % self.arguments)
 
         try :
             resolution = int(resolution)
         except ValueError :
-            raise PyKotaAccounterError, "Invalid parameters for ink accounter : [%s]" % self.arguments
+            raise PyKotaAccounterError("Invalid parameters for ink accounter : [%s]" % self.arguments)
 
         self.filter.logdebug("Using internal parser to compute job's size and ink usage.")
 
@@ -73,7 +73,7 @@ class Accounter(AccounterBase) :
                 try :
                     parser = analyzer.PDLAnalyzer(self.filter.DataFile, options)
                     (cspace, pages) = parser.getInkCoverage()
-                except pdlparser.PDLParserError, msg :
+                except pdlparser.PDLParserError as msg :
                     # Here we just log the failure, but
                     # we finally ignore it and return 0 since this
                     # computation is just an indication of what the

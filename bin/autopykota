@@ -46,7 +46,7 @@ class AutoPyKota(PyKotaTool) :
         username = os.environ.get("PYKOTAUSERNAME")
         printername = os.environ.get("PYKOTAPRINTERNAME")
         if (username is None) or (printername is None) :
-            raise PyKotaToolError, "Either the username or the printername is undefined. Fatal Error."
+            raise PyKotaToolError("Either the username or the printername is undefined. Fatal Error.")
         else :
             username = username.decode(self.charset)
             printername = printername.decode(self.charset)

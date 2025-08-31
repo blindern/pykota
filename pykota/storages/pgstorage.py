@@ -35,7 +35,7 @@ try :
 except ImportError :
     import sys
     # TODO : to translate or not to translate ?
-    raise PyKotaStorageError, "This python version (%s) doesn't seem to have the PygreSQL module installed correctly." % sys.version.split()[0]
+    raise PyKotaStorageError("This python version (%s) doesn't seem to have the PygreSQL module installed correctly." % sys.version.split()[0])
 else :
     try :
         PGError = pg.Error
@@ -62,9 +62,9 @@ class Storage(BaseStorage, SQLStorage) :
                                   dbname=dbname,
                                   user=user,
                                   passwd=passwd)
-        except PGError, msg :
+        except PGError as msg :
             msg = "%(msg)s --- the most probable cause of your problem is that PostgreSQL is down, or doesn't accept incoming connections because you didn't configure it as explained in PyKota's documentation." % locals()
-            raise PGError, msg
+            raise PGError(msg)
         self.closed = False
         try :
             self.quote = self.database._quote
@@ -72,7 +72,7 @@ class Storage(BaseStorage, SQLStorage) :
             self.quote = pg._quote
         try :
             self.database.query("SET CLIENT_ENCODING TO 'UTF-8';")
-        except PGError, msg :
+        except PGError as msg :
             self.tool.logdebug("Impossible to set database client encoding to UTF-8 : %s" % msg)
         self.tool.logdebug("Database opened (host=%s, port=%s, dbname=%s, user=%s)" % (repr(host),
                                                                                        repr(port),
@@ -109,8 +109,8 @@ class Storage(BaseStorage, SQLStorage) :
         self.querydebug("QUERY : %s" % query)
         try :
             return self.database.query(query)
-        except PGError, msg :
-            raise PyKotaStorageError, repr(msg)
+        except PGError as msg :
+            raise PyKotaStorageError(repr(msg))
 
     def doSearch(self, query) :
         """Does a search query."""
@@ -126,9 +126,9 @@ class Storage(BaseStorage, SQLStorage) :
         self.querydebug("QUERY : %s" % query)
         try :
             return self.database.query(query)
-        except PGError, msg :
+        except PGError as msg :
             self.tool.logdebug("Query failed : %s" % repr(msg))
-            raise PyKotaStorageError, repr(msg)
+            raise PyKotaStorageError(repr(msg))
 
     def doQuote(self, field) :
         """Quotes a field for use as a string in SQL queries."""
@@ -136,7 +136,7 @@ class Storage(BaseStorage, SQLStorage) :
             typ = "decimal"
         elif type(field) == type(0) :
             typ = "int"
-        elif type(field) == type(0L) :
+        elif type(field) == type(0) :
             typ = "int"
         else :
             typ = "text"

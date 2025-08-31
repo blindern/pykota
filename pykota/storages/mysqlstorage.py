@@ -31,7 +31,7 @@ try :
 except ImportError :
     import sys
     # TODO : to translate or not to translate ?
-    raise PyKotaStorageError, "This python version (%s) doesn't seem to have the MySQL module installed correctly." % sys.version.split()[0]
+    raise PyKotaStorageError("This python version (%s) doesn't seem to have the MySQL module installed correctly." % sys.version.split()[0])
 
 class Storage(BaseStorage, SQLStorage) :
     def __init__(self, pykotatool, host, dbname, user, passwd) :
@@ -66,7 +66,7 @@ class Storage(BaseStorage, SQLStorage) :
         try :
             self.database.autocommit(1)
         except AttributeError :
-            raise PyKotaStorageError, _("Your version of python-mysqldb is too old. Please install a newer release.")
+            raise PyKotaStorageError(_("Your version of python-mysqldb is too old. Please install a newer release."))
         self.cursor = self.database.cursor()
         self.cursor.execute("SET NAMES 'utf8';")
         self.cursor.execute("SET TRANSACTION ISOLATION LEVEL READ COMMITTED;") # Same as PostgreSQL and Oracle's default
@@ -123,8 +123,8 @@ class Storage(BaseStorage, SQLStorage) :
             query = query.decode("UTF-8")
         try :
             self.cursor.execute(query)
-        except self.database.Error, msg :
-            raise PyKotaStorageError, repr(msg)
+        except self.database.Error as msg :
+            raise PyKotaStorageError(repr(msg))
         else :
             # This returns a list of lists. Integers are returned as longs.
             return self.cursor.fetchall()
@@ -155,9 +155,9 @@ class Storage(BaseStorage, SQLStorage) :
             query = query.decode("UTF-8")
         try :
             self.cursor.execute(query)
-        except self.database.Error, msg :
+        except self.database.Error as msg :
             self.tool.logdebug("Query failed : %s" % repr(msg))
-            raise PyKotaStorageError, repr(msg)
+            raise PyKotaStorageError(repr(msg))
 
     def doQuote(self, field) :
         """Quotes a field for use as a string in SQL queries."""
@@ -165,7 +165,7 @@ class Storage(BaseStorage, SQLStorage) :
             return field
         elif type(field) == type(0) :
             return field
-        elif type(field) == type(0L) :
+        elif type(field) == type(0) :
             return field
         elif field is not None :
             return self.database.string_literal(field)

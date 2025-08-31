@@ -112,11 +112,11 @@ class PKPrinters(PyKotaTool) :
 
         if not names :
             if isdelete or isadd :
-                raise PyKotaCommandLineError, _("You must specify printers names on the command line.")
+                raise PyKotaCommandLineError(_("You must specify printers names on the command line."))
             names = [u"*"]
 
         if options.remove and not options.groups :
-            raise PyKotaCommandLineError, _("You must specify printers groups names on the command line.")
+            raise PyKotaCommandLineError(_("You must specify printers groups names on the command line."))
         elif (((islist or isdelete) and (options.charge  \
                                         or options.groups \
                                         or options.remove \
@@ -126,7 +126,7 @@ class PKPrinters(PyKotaTool) :
                                         or options.nopassthrough \
                                         or options.maxjobsize))) \
               or (options.cups and islist) :
-            raise PyKotaCommandLineError, _("Incompatible command line options. Please look at the online help or manual page.")
+            raise PyKotaCommandLineError(_("Incompatible command line options. Please look at the online help or manual page."))
 
         if not islist :
             percent = Percent(self)
@@ -138,7 +138,7 @@ class PKPrinters(PyKotaTool) :
             if not printers :
                 if not islist :
                     percent.display("\n")
-                raise PyKotaCommandLineError, _("There's no printer matching %s") % " ".join(names)
+                raise PyKotaCommandLineError(_("There's no printer matching %s") % " ".join(names))
             if not islist :
                 percent.setSize(len(printers))
 
@@ -171,7 +171,7 @@ class PKPrinters(PyKotaTool) :
             if options.groups :
                 printersgroups = self.storage.getMatchingPrinters(options.groups)
                 if not printersgroups :
-                    raise PyKotaCommandLineError, _("There's no printer matching %s") % " ".join(options.groups.split(','))
+                    raise PyKotaCommandLineError(_("There's no printer matching %s") % " ".join(options.groups.split(',')))
             else :
                 printersgroups = []
 
@@ -179,7 +179,7 @@ class PKPrinters(PyKotaTool) :
                 try :
                     charges = [float(part) for part in options.charge.split(',', 1)]
                 except ValueError :
-                    raise PyKotaCommandLineError, _("Invalid charge amount value %s") % options.charge
+                    raise PyKotaCommandLineError(_("Invalid charge amount value %s") % options.charge)
                 else :
                     if len(charges) > 2 :
                         charges = charges[:2]
@@ -198,7 +198,7 @@ class PKPrinters(PyKotaTool) :
                         if maxjobsize < 0 :
                             raise ValueError
                     except ValueError :
-                        raise PyKotaCommandLineError, _("Invalid maximum job size value %s") % options.maxjobsize
+                        raise PyKotaCommandLineError(_("Invalid maximum job size value %s") % options.maxjobsize)
             else :
                 maxjobsize = None
 
@@ -249,7 +249,7 @@ class PKPrinters(PyKotaTool) :
                                                           self.storage.getPrinter(pname), \
                                                           options.remove)
                         else :
-                            raise PyKotaCommandLineError, _("Invalid printer name %s") % pname
+                            raise PyKotaCommandLineError(_("Invalid printer name %s") % pname)
                         percent.oneMore()
                 else :
                     percent.display("\n%s...\n" % _("Modification"))

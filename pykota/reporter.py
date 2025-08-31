@@ -147,6 +147,6 @@ def openReporter(tool, reporttype, printers, ugnames, isgroup) :
                                                         "reporters",
                                                         "%s.py" % reporttype.lower()))
     except ImportError :
-        raise PyKotaReporterError, _("Unsupported reporter backend %s") % reporttype
+        raise PyKotaReporterError(_("Unsupported reporter backend %s") % reporttype)
     else :
         return reporterbackend.Reporter(tool, printers, ugnames, isgroup)

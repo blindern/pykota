@@ -468,7 +468,7 @@ class SQLStorage :
             if result :
                 for record in result :
                     name = databaseToUnicode(record[keyname])
-                    if patdict.has_key(name) or self.tool.matchString(name, patterns) :
+                    if name in patdict or self.tool.matchString(name, patterns) :
                         entry = storageEntryFromRecord(name, record)
                         entries.append(entry)
                         self.cacheEntry(cachename, entry.Name, entry)
@@ -518,7 +518,7 @@ class SQLStorage :
             patdict = {}.fromkeys(patterns)
             for record in result :
                 gname = databaseToUnicode(record["groupname"])
-                if patdict.has_key(gname) or self.tool.matchString(gname, patterns) :
+                if gname in patdict or self.tool.matchString(gname, patterns) :
                     group = self.storageGroupFromRecord(gname, record)
                     groups.append(group)
                     self.cacheEntry("GROUPS", group.Name, group)

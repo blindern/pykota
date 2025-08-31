@@ -79,7 +79,7 @@ class Handler :
         try :
             sock.settimeout(1.0)
             sock.connect((self.printerHostname, self.port))
-        except socket.error, msg :
+        except socket.error as msg :
             self.parent.filter.printInfo(_("Problem during connection to %s:%s : %s") % (self.printerHostname, self.port, str(msg)), "warn")
             return False
         else :
@@ -116,7 +116,8 @@ class Handler :
                 answer = self.sock.recv(1)
             except socket.timeout :
                 pass
-            except socket.error, (dummy, msg) :
+            except socket.error as e :
+                dummy, msg = e.args
                 self.parent.filter.printInfo(_("Problem while receiving PJL answer from %s:%s : %s") % (self.printerHostname, self.port, str(msg)), "warn")
             else :
                 if answer :
@@ -137,8 +138,8 @@ class Handler :
             try :
                 nbsent = self.sock.send(PJLMESSAGE)
                 if nbsent != len(PJLMESSAGE) :
-                    raise socket.error, "Short write"
-            except socket.error, msg :
+                    raise socket.error("Short write")
+            except socket.error as msg :
                 self.parent.filter.printInfo(_("Problem while sending PJL query to %s:%s : %s") % (self.printerHostname, self.port, str(msg)), "warn")
             else :
                 self.parent.filter.logdebug("Query sent to %s : %s" % (self.printerHostname, repr(PJLMESSAGE)))
@@ -299,5 +300,5 @@ if __name__ == "__main__" :
             return msg
 
         pagecounter = main(sys.argv[1])
-        print "Internal page counter's value is : %s" % pagecounter
+        print("Internal page counter's value is : %s" % pagecounter)
 

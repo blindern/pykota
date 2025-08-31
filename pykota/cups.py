@@ -25,7 +25,7 @@ from pykota.errors import PyKotaToolError
 try :
     from pkipplib import pkipplib
 except ImportError :
-    raise RuntimeError, "The python-pkipplib module is now mandatory. You can download pkipplib from http://www.pykota.com/"
+    raise RuntimeError("The python-pkipplib module is now mandatory. You can download pkipplib from http://www.pykota.com/")
 
 class JobTicket :
     """A class to hold CUPS print job informations."""
@@ -65,8 +65,8 @@ class JobTicket :
         server = pkipplib.CUPS() # TODO : username and password and/or encryption
         answer = server.getJobAttributes(self.JobId)
         if answer is None :
-            raise PyKotaToolError, "Network error while querying the CUPS server : %s" \
-                                      % server.lastErrorMessage
+            raise PyKotaToolError("Network error while querying the CUPS server : %s" \
+                                      % server.lastErrorMessage)
         (dummy, self.Charset) = self.getAttributeTypeAndValue(answer, "attributes-charset", "operation")
         (dummy, self.OriginatingUserName) = self.getAttributeTypeAndValue(answer, "job-originating-user-name")
         (dummy, self.Title) = self.getAttributeTypeAndValue(answer, "job-name")

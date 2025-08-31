@@ -88,10 +88,10 @@ class PKTurnKey(Tool) :
                 pass
             else :
                 for username in usernames :
-                    if not newmembers.has_key(username) :
+                    if username not in newmembers :
                         newmembers[username] = username
             for member in newmembers.keys() :
-                if not usersgid.has_key(member) :
+                if member not in usersgid :
                     del newmembers[member]
             membership[gname] = newmembers.keys()
         return membership
@@ -300,9 +300,9 @@ class PKTurnKey(Tool) :
                 except :
                     try :
                         uidmin = pwd.getpwnam(options.uidmin).pw_uid
-                    except KeyError, msg :
-                        raise PyKotaCommandLineError, _("Unknown username %s : %s") \
-                                                   % (options.uidmin, msg)
+                    except KeyError as msg :
+                        raise PyKotaCommandLineError(_("Unknown username %s : %s") \
+                                                   % (options.uidmin, msg))
 
             if not options.uidmax :
                 uidmax = sys.maxint
@@ -312,9 +312,9 @@ class PKTurnKey(Tool) :
                 except :
                     try :
                         uidmax = pwd.getpwnam(options.uidmax).pw_uid
-                    except KeyError, msg :
-                        raise PyKotaCommandLineError, _("Unknown username %s : %s") \
-                                                   % (options.uidmax, msg)
+                    except KeyError as msg :
+                        raise PyKotaCommandLineError(_("Unknown username %s : %s") \
+                                                   % (options.uidmax, msg))
 
             if uidmin > uidmax :
                 (uidmin, uidmax) = (uidmax, uidmin)
@@ -332,9 +332,9 @@ class PKTurnKey(Tool) :
                 except :
                     try :
                         gidmin = grp.getgrnam(options.gidmin).gr_gid
-                    except KeyError, msg :
-                        raise PyKotaCommandLineError, _("Unknown groupname %s : %s") \
-                                                   % (options.gidmin, msg)
+                    except KeyError as msg :
+                        raise PyKotaCommandLineError(_("Unknown groupname %s : %s") \
+                                                   % (options.gidmin, msg))
 
             if not options.gidmax :
                 gidmax = sys.maxint
@@ -344,9 +344,9 @@ class PKTurnKey(Tool) :
                 except :
                     try :
                         gidmax = grp.getgrnam(options.gidmax).gr_gid
-                    except KeyError, msg :
-                        raise PyKotaCommandLineError, _("Unknown groupname %s : %s") \
-                                                   % (options.gidmax, msg)
+                    except KeyError as msg :
+                        raise PyKotaCommandLineError(_("Unknown groupname %s : %s") \
+                                                   % (options.gidmax, msg))
 
             if gidmin > gidmax :
                 (gidmin, gidmax) = (gidmax, gidmin)

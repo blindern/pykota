@@ -164,7 +164,7 @@ def run(optparser, workclass, requireargs=False) :
         except KeyboardInterrupt :
             logerr("\nInterrupted with Ctrl+C !\n")
             retcode = -3
-        except PyKotaCommandLineError, msg :
+        except PyKotaCommandLineError as msg :
             logerr("%s : %s\n" % (sys.argv[0], msg))
             retcode = -2
         except SystemExit :

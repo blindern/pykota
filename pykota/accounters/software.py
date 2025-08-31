@@ -59,7 +59,7 @@ class Accounter(AccounterBase) :
                 try :
                     parser = analyzer.PDLAnalyzer(self.filter.DataFile)
                     jobsize = parser.getJobSize()
-                except pdlparser.PDLParserError, msg :
+                except pdlparser.PDLParserError as msg :
                     # Here we just log the failure, but
                     # we finally ignore it and return 0 since this
                     # computation is just an indication of what the
@@ -82,7 +82,7 @@ class Accounter(AccounterBase) :
         child = os.popen(self.arguments, "r")
         try :
             answer = child.read()
-        except (IOError, OSError), msg :
+        except (IOError, OSError) as msg :
             msg = "%s : %s" % (self.arguments, msg)
             self.filter.printInfo(_("Unable to compute job size with accounter %s") % msg, "warn")
         else :
@@ -108,7 +108,7 @@ class Accounter(AccounterBase) :
             if self.onerror == "CONTINUE" :
                 self.filter.printInfo(message, "error")
             else :
-                raise PyKotaAccounterError, message
+                raise PyKotaAccounterError(message)
         self.filter.logdebug("Software accounter %s said job is %s pages long." % (self.arguments, repr(pagecounter)))
 
         pagecounter = pagecounter or 0

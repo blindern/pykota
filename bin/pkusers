@@ -49,7 +49,7 @@ class PKUsers(PyKotaTool) :
                 if email.startswith("@") :
                     email = "%s%s" % (entry.Name, email)
                 if email and email.count('@') != 1 :
-                    raise PyKotaCommandLineError, _("Invalid email address %s") % email
+                    raise PyKotaCommandLineError(_("Invalid email address %s") % email)
                 entry.setEmail(email)
             if overcharge is not None : # NB : 0 is allowed !
                 entry.setOverChargeFactor(overcharge)
@@ -83,11 +83,11 @@ class PKUsers(PyKotaTool) :
         names = self.sanitizeNames(names, options.groups)
         if not names :
             if isdelete or isadd :
-                raise PyKotaCommandLineError, _("You must specify users or groups names on the command line.")
+                raise PyKotaCommandLineError(_("You must specify users or groups names on the command line."))
             names = [u"*"]
 
         if options.remove and not options.ingroups :
-            raise PyKotaCommandLineError, _("You must specify users groups names on the command line.")
+            raise PyKotaCommandLineError(_("You must specify users groups names on the command line."))
         elif (((islist or isdelete) and (options.limitby  \
                                       or options.balance \
                                       or options.email \
@@ -103,7 +103,7 @@ class PKUsers(PyKotaTool) :
                                   or options.remove \
                                   or options.overcharge \
                                   or options.comment)) :
-            raise PyKotaCommandLineError, _("Incompatible command line options. Please look at the online help or manual page.")
+            raise PyKotaCommandLineError(_("Incompatible command line options. Please look at the online help or manual page."))
 
         suffix = (options.groups and "Group") or "User"
 
@@ -117,8 +117,8 @@ class PKUsers(PyKotaTool) :
             if not entries :
                 if not islist :
                     percent.display("\n")
-                raise PyKotaCommandLineError, _("There's no %s matching %s") \
-                    % (_(suffix.lower()), " ".join(names))
+                raise PyKotaCommandLineError(_("There's no %s matching %s") \
+                    % (_(suffix.lower()), " ".join(names)))
             if not islist :
                 percent.setSize(len(entries))
 
@@ -168,11 +168,11 @@ class PKUsers(PyKotaTool) :
                                    'noquota',
                                    'noprint',
                                    'nochange') :
-                    raise PyKotaCommandLineError, _("Invalid limitby value %s") \
-                        % options.limitby
+                    raise PyKotaCommandLineError(_("Invalid limitby value %s") \
+                        % options.limitby)
                 if (limitby in ('nochange', 'noprint')) and options.groups :
-                    raise PyKotaCommandLineError, _("Invalid limitby value %s") \
-                        % options.limitby
+                    raise PyKotaCommandLineError(_("Invalid limitby value %s") \
+                        % options.limitby)
 
             balance = options.balance
             if balance :
@@ -180,16 +180,16 @@ class PKUsers(PyKotaTool) :
                 try :
                     balancevalue = float(balance)
                 except ValueError :
-                    raise PyKotaCommandLineError, _("Invalid balance value %s") \
-                        % options.balance
+                    raise PyKotaCommandLineError(_("Invalid balance value %s") \
+                        % options.balance)
             else :
                 balancevalue = None
 
             if options.ingroups :
                 usersgroups = self.storage.getMatchingGroups(options.ingroups)
                 if not usersgroups :
-                    raise PyKotaCommandLineError, _("There's no users group matching %s") \
-                        % " ".join(options.ingroups.split(','))
+                    raise PyKotaCommandLineError(_("There's no users group matching %s") \
+                        % " ".join(options.ingroups.split(',')))
             else :
                 usersgroups = []
 
@@ -280,7 +280,7 @@ class PKUsers(PyKotaTool) :
                                                            self.storage.getUser(ename), \
                                                            options.remove)
                         else :
-                            raise PyKotaCommandLineError, _("Invalid name %s") % ename
+                            raise PyKotaCommandLineError(_("Invalid name %s") % ename)
                         percent.oneMore()
                 else :
                     percent.display("\n%s...\n" % _("Modification"))

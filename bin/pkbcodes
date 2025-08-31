@@ -55,7 +55,7 @@ class PKBcodes(PyKotaTool) :
 
         if not names :
             if isdelete or isadd :
-                raise PyKotaCommandLineError, _("You must specify billing codes on the command line.")
+                raise PyKotaCommandLineError(_("You must specify billing codes on the command line."))
             names = [u"*"]
 
         if not islist :
@@ -70,7 +70,7 @@ class PKBcodes(PyKotaTool) :
             if not billingcodes :
                 if not islist :
                     percent.display("\n")
-                raise PyKotaCommandLineError, _("There's no billingcode matching %s") % " ".join(names)
+                raise PyKotaCommandLineError(_("There's no billingcode matching %s") % " ".join(names))
             if not islist :
                 percent.setSize(len(billingcodes))
 

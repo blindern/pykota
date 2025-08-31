@@ -118,7 +118,7 @@ class Accounter(AccounterBase) :
             return pjl.Handler(self, printer, skipinitialwait).retrieveInternalPageCounter()
 
         if printer is None :
-            raise PyKotaAccounterError, _("Unknown printer address in HARDWARE(%s) for printer %s") % (commandline, self.filter.PrinterName)
+            raise PyKotaAccounterError(_("Unknown printer address in HARDWARE(%s) for printer %s") % (commandline, self.filter.PrinterName))
         while 1 :
             self.filter.printInfo(_("Launching HARDWARE(%s)...") % commandline)
             pagecounter = None
@@ -146,7 +146,7 @@ class Accounter(AccounterBase) :
             child.tochild.close()
             try :
                 status = child.wait()
-            except OSError, msg :
+            except OSError as msg :
                 self.filter.logdebug("Error while waiting for hardware accounter pid %s : %s" % (child.pid, msg))
             else :
                 if os.WIFEXITED(status) :
@@ -158,6 +158,6 @@ class Accounter(AccounterBase) :
                 if self.onerror == "CONTINUE" :
                     self.filter.printInfo(message, "error")
                 else :
-                    raise PyKotaAccounterError, message
+                    raise PyKotaAccounterError(message)
             else :
                 return pagecounter

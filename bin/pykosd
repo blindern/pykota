@@ -51,7 +51,7 @@ class PyKOSD(PyKotaTool) :
             color = savecolor
             user = self.storage.getUserFromBackend(username) # don't use cache
             if not user.Exists :
-                raise PyKotaCommandLineError, _("You %(username)s don't have a PyKota printing account. Please contact your administrator.") % locals()
+                raise PyKotaCommandLineError(_("You %(username)s don't have a PyKota printing account. Please contact your administrator.") % locals())
             if user.LimitBy == "quota" :
                 printers = self.storage.getMatchingPrinters("*")
                 upquotas = [ self.storage.getUserPQuotaFromBackend(user, p) for p in printers ] # don't use cache
@@ -112,7 +112,7 @@ class PyKOSD(PyKotaTool) :
                                 type=pyosd.TYPE_STRING)
             else :
                 limitby = repr(user.LimitBy)
-                raise PyKotaToolError, "Incorrect limitation factor %(limitby)s for user %(username)s" % locals()
+                raise PyKotaToolError("Incorrect limitation factor %(limitby)s for user %(username)s" % locals())
 
             time.sleep(options.duration + 1)
             if loop :

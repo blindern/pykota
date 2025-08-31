@@ -196,9 +196,9 @@ class PyKotaBanner(Tool) :
     def main(self, arguments, options) :
         """Generates a banner."""
         if not hasRL :
-            raise PyKotaToolError, "The ReportLab module is missing. Download it from http://www.reportlab.org"
+            raise PyKotaToolError("The ReportLab module is missing. Download it from http://www.reportlab.org")
         if not hasPIL :
-            raise PyKotaToolError, "The Python Imaging Library is missing. Download it from http://www.pythonware.com/downloads"
+            raise PyKotaToolError("The Python Imaging Library is missing. Download it from http://www.pythonware.com/downloads")
 
         self.logdebug("Generating the banner in PDF format...")
         doc = self.genPDF(getPageSize(options.pagesize),
@@ -216,8 +216,8 @@ class PyKotaBanner(Tool) :
                                  stderr=subprocess.PIPE)
         try :
             (out, err) = subpr.communicate(doc)
-        except OSError, msg :
-            raise PyKotaToolError, _("Impossible to execute '%(command)s'") % locals()
+        except OSError as msg :
+            raise PyKotaToolError(_("Impossible to execute '%(command)s'") % locals())
         status = subpr.wait()
         if os.WIFEXITED(status) :
             status = os.WEXITSTATUS(status)

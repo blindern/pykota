@@ -25,7 +25,10 @@ import sys
 import socket
 import errno
 import signal
-import xmlrpclib
+try:
+    import xmlrpc.client as xmlrpclib
+except ImportError:
+    import xmlrpclib
 
 try :
     import PAM
@@ -79,7 +82,7 @@ class PyKotaNotify(Tool) :
     def checkAuth(self, username, password) :
         """Checks if we could authenticate an username with a password."""
         if not hasPAM :
-            raise PyKotaToolError, "You MUST install PyPAM for this functionnality to work !"
+            raise PyKotaToolError("You MUST install PyPAM for this functionnality to work !")
         else :
             retcode = False
             self.password = password
@@ -90,7 +93,7 @@ class PyKotaNotify(Tool) :
             try :
                 auth.authenticate()
                 auth.acct_mgmt()
-            except PAM.error, response :
+            except PAM.error as response :
                 self.printInfo(_("Authentication error for user %(username)s : %(response)s") % locals(), "warn")
             except :
                 self.printInfo(_("Internal error : can't authenticate user %(username)s") % locals(), "error")
@@ -101,7 +104,7 @@ class PyKotaNotify(Tool) :
 
     def alarmHandler(self, signum, frame) :
         """Alarm handler."""
-        raise PyKotaTimeoutError, _("The end user at %s:%i didn't answer within %i seconds. The print job will be cancelled.") % (self.destination, self.port, self.timeout)
+        raise PyKotaTimeoutError(_("The end user at %s:%i didn't answer within %i seconds. The print job will be cancelled.") % (self.destination, self.port, self.timeout))
 
     def main(self, arguments, options) :
         """Notifies or asks questions to end users through PyKotIcon."""
@@ -139,7 +142,7 @@ class PyKotaNotify(Tool) :
                         try :
                             (label, varname, varvalue) = arg.split(":", 2)
                         except ValueError :
-                            raise PyKotaCommandLineError, "argument '%s' is invalid !" % arg
+                            raise PyKotaCommandLineError("argument '%s' is invalid !" % arg)
                         labels.append(self.sanitizeMessage(label))
                         varname = varname.lower()
                         varnames.append(varname)
@@ -165,34 +168,34 @@ class PyKotaNotify(Tool) :
                     if options.checkauth and options.denyafter \
                        and (passnumber > options.denyafter) \
                        and (authok != "AUTH=YES") :
-                        print "DENY"
+                        print("DENY")
                     if result["isValid"] :
                         for varname in varnames :
                             if (varname != "password") \
                                and ((varname != "username") or (authok in (None, "AUTH=YES"))) :
-                                print "%s=%s" % (varname.upper(), self.UTF8ToUserCharset(result[varname].data[:]))
+                                print("%s=%s" % (varname.upper(), self.UTF8ToUserCharset(result[varname].data[:])))
                         if authok is not None :
-                            print authok
+                            print(authok)
                 elif options.action == "confirm" :
-                    print server.showDialog(self.sanitizeMessage(arguments[0]), True)
+                    print(server.showDialog(self.sanitizeMessage(arguments[0]), True))
                 elif options.action == "notify" :
-                    print server.showDialog(self.sanitizeMessage(arguments[0]), False)
+                    print(server.showDialog(self.sanitizeMessage(arguments[0]), False))
 
                 if options.quit :
                     server.quitApplication()
-            except (xmlrpclib.ProtocolError, socket.error, socket.gaierror), msg :
-                print options.noremote
+            except (xmlrpclib.ProtocolError, socket.error, socket.gaierror) as msg :
+                print(options.noremote)
                 #try :
                 #    errnum = msg.args[0]
-                #except (AttributeError, IndexError) :
+                #except (AttributeError as IndexError) :
                 #    pass
                 #else :
                 #    if errnum == errno.ECONNREFUSED :
-                #        raise PyKotaToolError, "%s : %s" % (str(msg), (_("Are you sure that PyKotIcon is running and accepting incoming connections on %s:%s ?") % (self.destination, self.port)))
+                #        raise PyKotaToolError("%s : %s" % (str(msg), (_("Are you sure that PyKotIcon is running and accepting incoming connections on %s:%s ?") % (self.destination, self.port))))
                 self.printInfo("%s : %s" % (_("Connection error"), str(msg)), "warn")
-            except PyKotaTimeoutError, msg :
+            except PyKotaTimeoutError as msg :
                 self.printInfo(msg, "warn")
-                print "CANCEL"      # Timeout occured : job is cancelled.
+                print("CANCEL")      # Timeout occured : job is cancelled.
         finally :
             if self.timeout :
                 signal.alarm(0)
@@ -305,12 +308,12 @@ examples :
              or (options["confirm"] and (options["ask"] or options["notify"])) \
              or ((options["checkauth"] or options["denyafter"]) and not options["ask"]) \
              or (options["notify"] and (options["ask"] or options["confirm"])) :
-            raise PyKotaCommandLineError, _("incompatible options, see help.")
+            raise PyKotaCommandLineError(_("incompatible options, see help."))
         elif (not options["destination"]) \
              or not (options["quit"] or options["ask"] or options["confirm"] or options["notify"]) :
-            raise PyKotaCommandLineError, _("some options are mandatory, see help.")
+            raise PyKotaCommandLineError(_("some options are mandatory, see help."))
         elif options["noremote"] not in ("CANCEL", "CONTINUE") :
-            raise PyKotaCommandLineError, _("incorrect value for the --noremote command line switch, see help.")
+            raise PyKotaCommandLineError(_("incorrect value for the --noremote command line switch, see help."))
         elif (not args) and (not options["quit"]) :
-            raise PyKotaCommandLineError, _("some options require arguments, see help.")
+            raise PyKotaCommandLineError(_("some options require arguments, see help."))
 """

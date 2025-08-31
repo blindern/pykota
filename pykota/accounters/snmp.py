@@ -36,7 +36,7 @@ import socket
 try :
     from pysnmp.entity.rfc3413.oneliner import cmdgen
 except ImportError :
-    raise RuntimeError, "The pysnmp v4.x module is not available. Download it from http://pysnmp.sf.net/\nPyKota doesn't support earlier releases anymore."
+    raise RuntimeError("The pysnmp v4.x module is not available. Download it from http://pysnmp.sf.net/\nPyKota doesn't support earlier releases anymore.")
 
 from pykota import constants
 
@@ -116,7 +116,7 @@ class BaseHandler :
 
     def retrieveSNMPValues(self) :
         """Retrieves a printer's internal page counter and status via SNMP."""
-        raise RuntimeError, "You have to overload this method."
+        raise RuntimeError("You have to overload this method.")
 
     def extractErrorStates(self, value) :
         """Returns a list of textual error states from a binary value."""
@@ -284,7 +284,7 @@ class Handler(BaseHandler) :
                                        tuple([int(i) for i in hrPrinterStatusOID.split('.')]), \
                                        tuple([int(i) for i in hrDeviceStatusOID.split('.')]), \
                                        tuple([int(i) for i in hrPrinterDetectedErrorStateOID.split('.')]))
-        except socket.gaierror, msg :
+        except socket.gaierror as msg :
             errorIndication = repr(msg)
         except :
             errorIndication = "Unknown SNMP/Network error. Check your wires."
@@ -353,4 +353,4 @@ if __name__ == "__main__" :
         sys.stderr.write("Usage :  python  %s  printer_ip_address\n" % sys.argv[0])
     else :
         pagecounter = main(sys.argv[1])
-        print "Internal page counter's value is : %s" % pagecounter
+        print("Internal page counter's value is : %s" % pagecounter)

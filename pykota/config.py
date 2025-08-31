@@ -25,7 +25,7 @@
 import sys
 import os
 import tempfile
-import ConfigParser
+import configparser as ConfigParser
 
 from pykota.utils import unicodeToDatabase
 from pykota.errors import PyKotaConfigError
@@ -39,9 +39,9 @@ class PyKotaConfig :
         self.filename = os.path.join(directory, "pykota.conf")
         self.adminfilename = os.path.join(directory, "pykotadmin.conf")
         if not os.access(self.filename, os.R_OK) :
-            raise PyKotaConfigError, _("Configuration file %s can't be read. Please check that the file exists and that your permissions are sufficient.") % self.filename
+            raise PyKotaConfigError(_("Configuration file %s can't be read. Please check that the file exists and that your permissions are sufficient.") % self.filename)
         if not os.path.isfile(self.adminfilename) :
-            raise PyKotaConfigError, _("Configuration file %s not found.") % self.adminfilename
+            raise PyKotaConfigError(_("Configuration file %s not found.") % self.adminfilename)
         if os.access(self.adminfilename, os.R_OK) :
             self.isAdmin = 1
         self.config = ConfigParser.ConfigParser()
@@ -79,7 +79,7 @@ class PyKotaConfig :
             if ignore :
                 return None
             else :
-                raise PyKotaConfigError, _("Option %s not found in section global of %s") % (option, self.filename)
+                raise PyKotaConfigError(_("Option %s not found in section global of %s") % (option(self.filename)))
 
     def getPrinterOption(self, printername, option) :
         """Returns an option from the printer section, or the global section, or raises a PyKotaConfigError."""
@@ -90,7 +90,7 @@ class PyKotaConfig :
             if globaloption is not None :
                 return globaloption
             else :
-                raise PyKotaConfigError, _("Option %s not found in section %s of %s") % (option, printername, self.filename)
+                raise PyKotaConfigError(_("Option %s not found in section %s of %s") % (option, printername, self.filename))
 
     def getStorageBackend(self) :
         """Returns the storage backend information as a Python mapping."""
@@ -118,7 +118,7 @@ class PyKotaConfig :
                     backendinfo["storageadmin"] = adminconf.get("global", "storageadmin", raw=1).decode(self.config_charset)
                 except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) :
                     if not issqlite :
-                        raise PyKotaConfigError, _("Option %s not found in section global of %s") % ("storageadmin", self.adminfilename)
+                        raise PyKotaConfigError(_("Option %s not found in section global of %s") % ("storageadmin", self.adminfilename))
                 try :
                     backendinfo["storageadminpw"] = adminconf.get("global", "storageadminpw", raw=1).decode(self.config_charset)
                 except (ConfigParser.NoSectionError, ConfigParser.NoOptionError) :
@@ -164,7 +164,7 @@ class PyKotaConfig :
             ldapinfo["cacert"] = ldapinfo["cacert"].strip().encode(sys.getfilesystemencoding(), "replace")
         if ldapinfo["ldaptls"] :
             if not os.access(ldapinfo["cacert"] or "", os.R_OK) :
-                raise PyKotaConfigError, _("Option ldaptls is set, but certificate %s is not readable.") % repr(ldapinfo["cacert"])
+                raise PyKotaConfigError(_("Option ldaptls is set, but certificate %s is not readable.") % repr(ldapinfo["cacert"]))
         return ldapinfo
 
     def getLoggingBackend(self) :
@@ -175,7 +175,7 @@ class PyKotaConfig :
         except PyKotaConfigError :
             logger = "system"
         if logger not in validloggers :
-            raise PyKotaConfigError, _("Option logger only supports values in %s") % str(validloggers)
+            raise PyKotaConfigError(_("Option logger only supports values in %s") % str(validloggers))
         return logger
 
     def getLogoURL(self) :
@@ -204,13 +204,13 @@ class PyKotaConfig :
                     try :
                         (accounter, args) = [x.strip() for x in fullaccounter.split('(', 1)]
                     except ValueError :
-                        raise PyKotaConfigError, _("Invalid preaccounter %s for printer %s") % (fullaccounter, printername)
+                        raise PyKotaConfigError(_("Invalid preaccounter %s for printer %s") % (fullaccounter, printername))
                     if args.endswith(')') :
                         args = args[:-1].strip()
                     if (vac == "ink") and not args :
-                        raise PyKotaConfigError, _("Invalid preaccounter %s for printer %s") % (fullaccounter, printername)
+                        raise PyKotaConfigError(_("Invalid preaccounter %s for printer %s") % (fullaccounter, printername))
                     return (vac, args)
-            raise PyKotaConfigError, _("Option preaccounter in section %s only supports values in %s") % (printername, str(validaccounters))
+            raise PyKotaConfigError(_("Option preaccounter in section %s only supports values in %s") % (printername, str(validaccounters)))
 
     def getAccounterBackend(self, printername) :
         """Returns the accounter backend to use for a given printer."""
@@ -226,13 +226,13 @@ class PyKotaConfig :
                     try :
                         (accounter, args) = [x.strip() for x in fullaccounter.split('(', 1)]
                     except ValueError :
-                        raise PyKotaConfigError, _("Invalid accounter %s for printer %s") % (fullaccounter, printername)
+                        raise PyKotaConfigError(_("Invalid accounter %s for printer %s") % (fullaccounter, printername))
                     if args.endswith(')') :
                         args = args[:-1].strip()
                     if (vac in ("hardware", "ink")) and not args :
-                        raise PyKotaConfigError, _("Invalid accounter %s for printer %s") % (fullaccounter, printername)
+                        raise PyKotaConfigError(_("Invalid accounter %s for printer %s") % (fullaccounter, printername))
                     return (vac, args)
-            raise PyKotaConfigError, _("Option accounter in section %s only supports values in %s") % (printername, str(validaccounters))
+            raise PyKotaConfigError(_("Option accounter in section %s only supports values in %s") % (printername, str(validaccounters)))
 
     def getPreHook(self, printername) :
         """Returns the prehook command line to launch, or None if unset."""
@@ -280,7 +280,7 @@ class PyKotaConfig :
             try :
                 value = [x.strip() for x in fullvalue.split('(', 1)]
             except ValueError :
-                raise PyKotaConfigError, _("Invalid unknown_billingcode directive %s for printer %s") % (fullvalue, printername)
+                raise PyKotaConfigError(_("Invalid unknown_billingcode directive %s for printer %s") % (fullvalue, printername))
             if len(value) == 1 :
                 value.append("")
             (value, args) = value
@@ -290,7 +290,7 @@ class PyKotaConfig :
             if (value == "DENY") and not args :
                 return ("DENY", None)
             if value not in validvalues :
-                raise PyKotaConfigError, _("Directive unknown_billingcode in section %s only supports values in %s") % (printername, str(validvalues))
+                raise PyKotaConfigError(_("Directive unknown_billingcode in section %s only supports values in %s") % (printername, str(validvalues)))
             return (value, args)
 
     def getPrinterEnforcement(self, printername) :
@@ -303,7 +303,7 @@ class PyKotaConfig :
         else :
             enforcement = enforcement.upper()
             if enforcement not in validenforcements :
-                raise PyKotaConfigError, _("Option enforcement in section %s only supports values in %s") % (printername, str(validenforcements))
+                raise PyKotaConfigError(_("Option enforcement in section %s only supports values in %s") % (printername, str(validenforcements)))
             return enforcement
 
     def getPrinterOnBackendError(self, printername) :
@@ -326,7 +326,7 @@ class PyKotaConfig :
                     else :
                         error = True
             if error :
-                raise PyKotaConfigError, _("Option onbackenderror in section %s only supports values 'charge', 'nocharge', and 'retry:num:delay'") % printername
+                raise PyKotaConfigError(_("Option onbackenderror in section %s only supports values 'charge', 'nocharge', and 'retry:num:delay'") % printername)
             return action
 
     def getPrinterOnAccounterError(self, printername) :
@@ -339,7 +339,7 @@ class PyKotaConfig :
         else :
             action = action.upper()
             if action not in validactions :
-                raise PyKotaConfigError, _("Option onaccountererror in section %s only supports values in %s") % (printername, str(validactions))
+                raise PyKotaConfigError(_("Option onaccountererror in section %s only supports values in %s") % (printername, str(validactions)))
             return action
 
     def getPrinterPolicy(self, printername) :
@@ -353,7 +353,7 @@ class PyKotaConfig :
             try :
                 policy = [x.strip() for x in fullpolicy.split('(', 1)]
             except ValueError :
-                raise PyKotaConfigError, _("Invalid policy %s for printer %s") % (fullpolicy, printername)
+                raise PyKotaConfigError(_("Invalid policy %s for printer %s") % (fullpolicy, printername))
             if len(policy) == 1 :
                 policy.append("")
             (policy, args) = policy
@@ -361,9 +361,9 @@ class PyKotaConfig :
                 args = args[:-1]
             policy = policy.upper()
             if (policy == "EXTERNAL") and not args :
-                raise PyKotaConfigError, _("Invalid policy %s for printer %s") % (fullpolicy, printername)
+                raise PyKotaConfigError(_("Invalid policy %s for printer %s") % (fullpolicy, printername))
             if policy not in validpolicies :
-                raise PyKotaConfigError, _("Option policy in section %s only supports values in %s") % (printername, str(validpolicies))
+                raise PyKotaConfigError(_("Option policy in section %s only supports values in %s") % (printername, str(validpolicies)))
             return (policy, args)
 
     def getCrashRecipient(self) :
@@ -412,7 +412,7 @@ class PyKotaConfig :
             try :
                 mailto = [x.strip() for x in fullmailto.split('(', 1)]
             except ValueError :
-                raise PyKotaConfigError, _("Invalid option mailto %s for printer %s") % (fullmailto, printername)
+                raise PyKotaConfigError(_("Invalid option mailto %s for printer %s") % (fullmailto, printername))
             if len(mailto) == 1 :
                 mailto.append("")
             (mailto, args) = mailto
@@ -420,9 +420,9 @@ class PyKotaConfig :
                 args = args[:-1]
             mailto = mailto.upper()
             if (mailto == "EXTERNAL") and not args :
-                raise PyKotaConfigError, _("Invalid option mailto %s for printer %s") % (fullmailto, printername)
+                raise PyKotaConfigError(_("Invalid option mailto %s for printer %s") % (fullmailto, printername))
             if mailto not in validmailtos :
-                raise PyKotaConfigError, _("Option mailto in section %s only supports values in %s") % (printername, str(validmailtos))
+                raise PyKotaConfigError(_("Option mailto in section %s only supports values in %s") % (printername, str(validmailtos)))
             return (mailto, args)
 
     def getMaxDenyBanners(self, printername) :
@@ -436,7 +436,7 @@ class PyKotaConfig :
             if value < 0 :
                 raise ValueError
         except (TypeError, ValueError) :
-            raise PyKotaConfigError, _("Invalid maximal deny banners counter %s") % maxdb
+            raise PyKotaConfigError(_("Invalid maximal deny banners counter %s") % maxdb)
         else :
             return value
 
@@ -456,7 +456,7 @@ class PyKotaConfig :
         try :
             return int(gd)
         except (TypeError, ValueError) :
-            raise PyKotaConfigError, _("Invalid grace delay %s") % gd
+            raise PyKotaConfigError(_("Invalid grace delay %s") % gd)
 
     def getPoorMan(self) :
         """Returns the poor man's threshold."""
@@ -467,7 +467,7 @@ class PyKotaConfig :
         try :
             return float(pm)
         except (TypeError, ValueError) :
-            raise PyKotaConfigError, _("Invalid poor man's threshold %s") % pm
+            raise PyKotaConfigError(_("Invalid poor man's threshold %s") % pm)
 
     def getBalanceZero(self) :
         """Returns the value of the zero for balance limitation."""
@@ -478,7 +478,7 @@ class PyKotaConfig :
         try :
             return float(bz)
         except (TypeError, ValueError) :
-            raise PyKotaConfigError, _("Invalid balancezero value %s") % bz
+            raise PyKotaConfigError(_("Invalid balancezero value %s") % bz)
 
     def getPoorWarn(self) :
         """Returns the poor man's warning message."""
@@ -533,7 +533,7 @@ class PyKotaConfig :
         except AttributeError :
             value = "native"
         if value not in validvalues :
-            raise PyKotaConfigError, _("Option usernamecase only supports values in %s") % str(validvalues)
+            raise PyKotaConfigError(_("Option usernamecase only supports values in %s") % str(validvalues))
         return value
 
     def getRejectUnknown(self) :
@@ -579,7 +579,7 @@ class PyKotaConfig :
             try :
                 return int(duplicatesdelay)
             except (TypeError, ValueError) :
-                raise PyKotaConfigError, _("Incorrect value %s for the duplicatesdelay directive in section %s") % (str(duplicatesdelay), printername)
+                raise PyKotaConfigError(_("Incorrect value %s for the duplicatesdelay directive in section %s") % (str(duplicatesdelay), printername))
 
     def getNoPrintingMaxDelay(self, printername) :
         """Returns the max number of seconds to wait for the printer to be in 'printing' mode."""
@@ -593,7 +593,7 @@ class PyKotaConfig :
                 if maxdelay < 0 :
                     raise ValueError
             except (TypeError, ValueError) :
-                raise PyKotaConfigError, _("Incorrect value %s for the noprintingmaxdelay directive in section %s") % (str(maxdelay), printername)
+                raise PyKotaConfigError(_("Incorrect value %s for the noprintingmaxdelay directive in section %s") % (str(maxdelay), printername))
             else :
                 return maxdelay
 
@@ -609,7 +609,7 @@ class PyKotaConfig :
                 if stab < 1 :
                     raise ValueError
             except (TypeError, ValueError) :
-                raise PyKotaConfigError, _("Incorrect value %s for the statusstabilizationloops directive in section %s") % (str(stab), printername)
+                raise PyKotaConfigError(_("Incorrect value %s for the statusstabilizationloops directive in section %s") % (str(stab), printername))
             else :
                 return stab
 
@@ -625,7 +625,7 @@ class PyKotaConfig :
                 if stab < 0.25 :
                     raise ValueError
             except (TypeError, ValueError) :
-                raise PyKotaConfigError, _("Incorrect value %s for the statusstabilizationdelay directive in section %s") % (str(stab), printername)
+                raise PyKotaConfigError(_("Incorrect value %s for the statusstabilizationdelay directive in section %s") % (str(stab), printername))
             else :
                 return stab
 
@@ -648,7 +648,7 @@ class PyKotaConfig :
                 else :
                     raise ValueError
             except ValueError :
-                raise PyKotaConfigError, _("Incorrect value %s for the snmperrormask directive in section %s") % (errmask, printername)
+                raise PyKotaConfigError(_("Incorrect value %s for the snmperrormask directive in section %s") % (errmask, printername))
 
     def getWinbindSeparator(self) :
         """Returns the winbind separator's value if it is set, else None."""
@@ -664,7 +664,7 @@ class PyKotaConfig :
         else :
             value = value.strip().upper()
             if value not in validvalues :
-                raise PyKotaConfigError, _("Option accountbanner in section %s only supports values in %s") % (printername, str(validvalues))
+                raise PyKotaConfigError(_("Option accountbanner in section %s only supports values in %s") % (printername, str(validvalues)))
             return value
 
     def getAvoidDuplicateBanners(self, printername) :
@@ -680,7 +680,7 @@ class PyKotaConfig :
                     raise ValueError
             except ValueError :
                 if avoidduplicatebanners not in ["YES", "NO"] :
-                    raise PyKotaConfigError, _("Option avoidduplicatebanners only accepts 'yes', 'no', or a positive integer.")
+                    raise PyKotaConfigError(_("Option avoidduplicatebanners only accepts 'yes', 'no', or a positive integer."))
                 else :
                     value = avoidduplicatebanners
             return value
@@ -721,7 +721,7 @@ class PyKotaConfig :
                 if (replacement != "PRECOMPUTED") and (replacement < 0) :
                     raise ValueError
             except (IndexError, ValueError, TypeError) :
-                raise PyKotaConfigError, _("Option trustjobsize for printer %s is incorrect") % printername
+                raise PyKotaConfigError(_("Option trustjobsize for printer %s is incorrect") % printername)
             return (limit, replacement)
 
     def getPrinterCoefficients(self, printername) :
@@ -729,11 +729,11 @@ class PyKotaConfig :
         branchbasename = "coefficient_"
         try :
             globalbranches = [ (k, self.config.get("global", k).decode(self.config_charset)) for k in self.config.options("global") if k.startswith(branchbasename) ]
-        except ConfigParser.NoSectionError, msg :
-            raise PyKotaConfigError, "Invalid configuration file : %s" % msg
+        except ConfigParser.NoSectionError as msg :
+            raise PyKotaConfigError("Invalid configuration file : %s" % msg)
         try :
             sectionbranches = [ (k, self.config.get(printername, k).decode(self.config_charset)) for k in self.config.options(printername) if k.startswith(branchbasename) ]
-        except ConfigParser.NoSectionError, msg :
+        except ConfigParser.NoSectionError as msg :
             sectionbranches = []
         branches = {}
         for (k, v) in globalbranches :
@@ -743,7 +743,7 @@ class PyKotaConfig :
                 try :
                     branches[k] = float(value)
                 except ValueError :
-                    raise PyKotaConfigError, "Invalid coefficient %s (%s) for printer %s" % (k, value, printername)
+                    raise PyKotaConfigError("Invalid coefficient %s (%s) for printer %s" % (k, value, printername))
 
         for (k, v) in sectionbranches :
             k = k.split('_', 1)[1]
@@ -752,7 +752,7 @@ class PyKotaConfig :
                 try :
                     branches[k] = float(value) # overwrite any global option or set a new value
                 except ValueError :
-                    raise PyKotaConfigError, "Invalid coefficient %s (%s) for printer %s" % (k, value, printername)
+                    raise PyKotaConfigError("Invalid coefficient %s (%s) for printer %s" % (k, value, printername))
             else :
                 del branches[k] # empty value disables a global option
         return branches

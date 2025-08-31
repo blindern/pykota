@@ -30,8 +30,8 @@ import os
 import pwd
 import socket
 import smtplib
-from email.MIMEText import MIMEText
-from email.Header import Header
+from email.mime.text import MIMEText
+from email.header import Header
 import email.Utils
 
 import pykota.appinit
@@ -47,14 +47,14 @@ class WarnPyKota(PyKotaTool) :
         smtpserver = self.smtpserver
         try :
             server = smtplib.SMTP(smtpserver)
-        except socket.error, msg :
+        except socket.error as msg :
             self.printInfo(_("Impossible to connect to SMTP server : %(smtpserver)s") \
                                                 % locals(), \
                            "error")
         else :
             try :
                 server.sendmail(adminmail, [touser], fullmessage)
-            except smtplib.SMTPException, answer :
+            except smtplib.SMTPException as answer :
                 for (k, v) in answer.recipients.items() :
                     errormsg = v[0]
                     errorvalue = v[1]
@@ -210,8 +210,8 @@ class WarnPyKota(PyKotaTool) :
         printername = options.printer
         printers = self.storage.getMatchingPrinters(printername)
         if not printers :
-            raise PyKotaCommandLineError, _("There's no printer matching %(printername)s") \
-                                                        % locals()
+                        raise PyKotaCommandLineError(_("There's no printer matching %(printername)s") \
+                                                         % locals())
         alreadydone = {}
         for printer in printers :
             if options.groups :

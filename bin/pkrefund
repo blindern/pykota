@@ -181,16 +181,16 @@ class PKRefund(PyKotaTool) :
     def main(self, arguments, options) :
         """Refunds jobs."""
         if not hasRL :
-            raise PyKotaToolError, "The ReportLab module is missing. Download it from http://www.reportlab.org"
+            raise PyKotaToolError("The ReportLab module is missing. Download it from http://www.reportlab.org")
         if not hasPIL :
-            raise PyKotaToolError, "The Python Imaging Library is missing. Download it from http://www.pythonware.com/downloads"
+            raise PyKotaToolError("The Python Imaging Library is missing. Download it from http://www.pythonware.com/downloads")
 
         self.adminOnly()
 
         self.pagesize = getPageSize(options.pagesize)
 
         if (not options.reason) or (not options.reason.strip()) :
-            raise PyKotaCommandLineError, _("Refunding for no reason is forbidden. Please use the --reason command line option.")
+            raise PyKotaCommandLineError(_("Refunding for no reason is forbidden. Please use the --reason command line option."))
 
         extractonly = {}
         for filterexp in arguments :
@@ -201,7 +201,7 @@ class PKRefund(PyKotaTool) :
                     if filterkey not in self.validfilterkeys :
                         raise ValueError
                 except ValueError :
-                    raise PyKotaCommandLineError, _("Invalid filter value [%s], see help.") % filterexp
+                    raise PyKotaCommandLineError(_("Invalid filter value [%s], see help.") % filterexp)
                 else :
                     extractonly.update({ filterkey : filtervalue })
 

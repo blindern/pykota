@@ -29,9 +29,12 @@ from pykota.storages.sql import SQLStorage
 try :
     from pysqlite2 import dbapi2 as sqlite
 except ImportError :
-    import sys
-    # TODO : to translate or not to translate ?
-    raise PyKotaStorageError, "This python version (%s) doesn't seem to have the PySQLite module installed correctly." % sys.version.split()[0]
+    try :
+        import sqlite3 as sqlite
+    except ImportError :
+        import sys
+        # TODO : to translate or not to translate ?
+        raise PyKotaStorageError("This python version (%s) doesn't seem to have the SQLite module installed correctly." % sys.version.split()[0])
 
 class Storage(BaseStorage, SQLStorage) :
     def __init__(self, pykotatool, host, dbname, user, passwd) :
@@ -79,9 +82,9 @@ class Storage(BaseStorage, SQLStorage) :
         self.querydebug("QUERY : %s" % query)
         try :
             self.cursor.execute(query)
-        except self.database.Error, msg :
+        except self.database.Error as msg :
             self.tool.logdebug("Query failed : %s" % repr(msg))
-            raise PyKotaStorageError, repr(msg)
+            raise PyKotaStorageError(repr(msg))
 
     def doRawSearch(self, query) :
         """Executes a raw search query."""
@@ -115,7 +118,7 @@ class Storage(BaseStorage, SQLStorage) :
             return field
         elif type(field) == type(0) :
             return field
-        elif type(field) == type(0L) :
+        elif type(field) == type(0) :
             return field
         elif field is not None :
             return ("'%s'" % field.replace("'", "''"))

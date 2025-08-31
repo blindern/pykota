@@ -29,7 +29,7 @@ import os
 def checkModule(module) :
     """Checks if a Python module is available or not."""
     try :
-        exec "import %s" % module
+        exec("import %s" % module)
     except ImportError :
         return 0
     else :
@@ -60,14 +60,14 @@ def checkWithPrompt(prompt, module=None, command=None, helper=None) :
 if __name__ == "__main__" :
     sys.stdout.write("Checking PyKota dependencies...\n")
 
-    # checks if Python version is correct, we need >= 2.4
-    if not (sys.version > "2.4") :
-        sys.stderr.write("PyKota needs at least Python v2.4 !\nYour version seems to be older than that, please update.\nAborted !\n")
+    # checks if Python version is correct, we need >= 3.6
+    if not (sys.version_info >= (3, 6)) :
+        sys.stderr.write("PyKota needs at least Python v3.6 !\nYour version seems to be older than that, please update.\nAborted !\n")
         sys.exit(-1)
 
     # checks if some needed Python modules are there or not.
     modulestocheck = [ ("Python-PygreSQL", "pg", "PygreSQL is mandatory if you want to use PostgreSQL as the quota database backend.\nSee http://www.pygresql.org or use 'apt-get install python-pygresql'"),
-                       ("Python-SQLite", "pysqlite2", "Python-SQLite is mandatory if you want to use SQLite as the quota database backend.\nSee http://www.pysqlite.org or use 'apt-get install python-pysqlite2'"),
+                       ("Python-SQLite", "sqlite3", "Python-SQLite is mandatory if you want to use SQLite as the quota database backend.\nSQLite3 is included with Python 3.6+"),
                        ("MySQL-Python", "MySQLdb", "MySQL-Python is mandatory if you want to use MySQL as the quota database backend.\nSee http://sourceforge.net/projects/mysql-python or use 'apt-get install python-mysqldb'"),
                        ("Python-egenix-mxDateTime", "mx.DateTime", "eGenix' mxDateTime is mandatory for PyKota to work.\nSee http://www.egenix.com or use 'apt-get install python-egenix-mxdatetime'"),
                        ("Python-LDAP", "ldap", "Python-LDAP is mandatory if you plan to use an LDAP\ndirectory as the quota database backend.\nSee http://python-ldap.sf.net or use 'apt-get install python-ldap'"),
@@ -75,7 +75,7 @@ if __name__ == "__main__" :
                        ("Python-SNMP", "pysnmp", "Python-SNMP is recommended if you plan to use hardware\naccounting with printers which support SNMP.\nSee http://pysnmp.sf.net or use 'apt-get install python-pysnmp4'"),
                        ("Python-JAXML", "jaxml", "Python-JAXML is recommended if you plan to dump datas in the XML format.\nSee http://www.librelogiciel.com/software/ or use 'apt-get install python-jaxml'"),
                        ("Python-ReportLab", "reportlab.pdfgen.canvas", "Python-ReportLab is required if you plan to have PyKota generate banners, invoices or receipts.\nSee http://www.reportlab.org/ or use 'apt-get install python-reportlab'"),
-                       ("Python-Imaging", "PIL.Image", "Python-Imaging is required if you plan to have PyKota generate banners, invoices or receipts.\nSee http://www.pythonware.com/downloads/ or use 'apt-get install python-imaging'"),
+                       ("Python-Pillow", "PIL.Image", "Python-Pillow is required if you plan to have PyKota generate banners, invoices or receipts.\nSee https://pillow.readthedocs.io/ or use 'pip install Pillow'"),
                        ("Python-pkpgcounter", "pkpgpdls", "Python-pkpgcounter is mandatory.\nGrab it from http://www.pykota.com/software/pkpgcounter/ or use 'apt-get install pkpgcounter'"),
                        ("Python-PAM", "PAM", "Python-PAM is recommended if you plan to use pknotify+PyKotIcon.\nGrab it from http://www.pangalactic.org/PyPAM/ or use 'apt-get install python-pam'"),
                        ("Python-pkipplib", "pkipplib", "Python-pkipplib is now mandatory.\nGrab it from http://www.pykota.com/software/pkipplib/"),

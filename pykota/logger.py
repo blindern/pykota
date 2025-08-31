@@ -35,6 +35,6 @@ def openLogger(backend) :
                                                       "loggers",
                                                       "%s.py" % backend.lower()))
     except ImportError :
-        raise PyKotaLoggingError, _("Unsupported logging subsystem %s") % backend
+        raise PyKotaLoggingError(_("Unsupported logging subsystem %s") % backend)
     else :
         return loggingbackend.Logger()

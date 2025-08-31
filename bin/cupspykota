@@ -37,8 +37,8 @@ import fnmatch
 import pwd
 import socket
 import smtplib
-from email.MIMEText import MIMEText
-from email.Header import Header
+from email.mime.text import MIMEText
+from email.header import Header
 import email.Utils
 
 from mx import DateTime
@@ -89,7 +89,7 @@ class CUPSBackend(PyKotaTool) :
         if not self.config.isAdmin :
             from pykota import config
             username = self.effectiveUserName
-            raise config.PyKotaConfigError, _("User %(username)s is not allowed to read ~pykota/pykotadmin.conf, you must check the permissions.") % locals()
+            raise config.PyKotaConfigError(_("User %(username)s is not allowed to read ~pykota/pykotadmin.conf, you must check the permissions.") % locals())
 
     def enableSigInt(self) :
         """Enables the SIGINT signal (which raises KeyboardInterrupt)."""
@@ -119,7 +119,7 @@ class CUPSBackend(PyKotaTool) :
                 self.lockfile.seek(0, 0)
                 self.lockfile.write(str(self.pid))
                 self.lockfile.flush()
-            except IOError, msg :
+            except IOError as msg :
                 self.logdebug("I/O Error while waiting for lock %s : %s" % (self.lockfilename, msg))
                 time.sleep(0.25)
 
@@ -145,7 +145,7 @@ class CUPSBackend(PyKotaTool) :
             try :
                 # see if the pid contained in the lock file is still running
                 os.kill(pid, 0)
-            except OSError, err :
+            except OSError as err :
                 if err.errno != errno.EPERM :
                     # process doesn't exist anymore
                     os.remove(lockfilename)
@@ -275,7 +275,7 @@ class CUPSBackend(PyKotaTool) :
                 backend = ""
                 printerhostname = ""
             else :
-                raise PyKotaToolError, "Invalid DEVICE_URI : %s\n" % device_uri
+                raise PyKotaToolError("Invalid DEVICE_URI : %s\n" % device_uri)
         else :
             if backend == "hp" :
                 try :
@@ -385,7 +385,7 @@ class CUPSBackend(PyKotaTool) :
                     answer = answer.strip().upper()
                     if answer == "CANCEL" :
                         break
-            except IOError, msg :
+            except IOError as msg :
                 self.logdebug("IOError while reading subprocess' output : %s" % msg)
             inputfile.close()
             self.logdebug("User's confirmation received : %s" % (((answer == "CANCEL") and "CANCEL") or "CONTINUE"))
@@ -420,7 +420,7 @@ class CUPSBackend(PyKotaTool) :
                     elif line.startswith("REASON=") :
                         reason = line.split("=", 1)[1].strip().decode(self.charset, "replace")
                         self.logdebug("Seen new reason [%s]" % reason)
-            except IOError, msg :
+            except IOError as msg :
                 self.logdebug("IOError while reading subprocess' output : %s" % msg)
             inputfile.close()
 
@@ -490,7 +490,7 @@ class CUPSBackend(PyKotaTool) :
                 self.logdebug("Work file %s will be deleted." % self.DataFile)
                 try :
                     os.remove(self.DataFile)
-                except OSError, msg :
+                except OSError as msg :
                     self.logdebug("Problem while deleting work file %s : %s" % (self.DataFile, msg))
                 else :
                     self.logdebug("Work file %s has been deleted." % self.DataFile)
@@ -689,7 +689,7 @@ class CUPSBackend(PyKotaTool) :
                 self.logdebug("Using %s as the banner." % bannerfileorcommand)
                 try :
                     fh = open(bannerfileorcommand, 'rb')
-                except IOError, msg :
+                except IOError as msg :
                     self.printInfo("Impossible to open %s : %s" \
                                        % (bannerfileorcommand, msg), "error")
                 else :
@@ -938,7 +938,7 @@ class CUPSBackend(PyKotaTool) :
                 fullmessage = self.Reason + (_("\n\nYour system administrator :\n\n\t%s - <%s>\n") % (admin, adminmail))
                 try :
                     server = smtplib.SMTP(self.smtpserver)
-                except socket.error, msg :
+                except socket.error as msg :
                     self.printInfo(_("Impossible to connect to SMTP server : %s") % msg, "error")
                 else :
                     try :
@@ -958,7 +958,7 @@ class CUPSBackend(PyKotaTool) :
                             msg["To"] = adminmail
                         msg["Date"] = email.Utils.formatdate(localtime=True)
                         server.sendmail(adminmail, destination, msg.as_string())
-                    except smtplib.SMTPException, answer :
+                    except smtplib.SMTPException as answer :
                         try :
                             for (k, v) in answer.recipients.items() :
                                 self.printInfo(_("Impossible to send mail to %s, error %s : %s") % (k, v[0], v[1]), "error")
@@ -1289,7 +1289,7 @@ class CUPSBackend(PyKotaTool) :
             try :
                 self.logdebug("Calling execve...")
                 os.execve(originalbackend, arguments, os.environ)
-            except OSError, msg :
+            except OSError as msg :
                 self.logdebug("execve() failed: %s" % msg)
             self.logdebug("We shouldn't be there !!!")
             os._exit(-1)
@@ -1300,7 +1300,8 @@ class CUPSBackend(PyKotaTool) :
         while status == -1 :
             try :
                 status = os.waitpid(pid, 0)[1]
-            except OSError, (err, msg) :
+            except OSError as e :
+                err, msg = e.args
                 if err == 4 :
                     killed = True
 
@@ -1328,7 +1329,7 @@ if __name__ == "__main__" :
     # This is a CUPS backend, we should act and die like a CUPS backend
     wrapper = CUPSBackend()
     if len(sys.argv) == 1 :
-        print "\n".join(wrapper.discoverOtherBackends())
+        print("\n".join(wrapper.discoverOtherBackends()))
         sys.exit(0)
     elif len(sys.argv) not in (6, 7) :
         logerr("ERROR: %s job-id user title copies options [file]\n"\
@@ -1355,7 +1356,7 @@ if __name__ == "__main__" :
             except KeyboardInterrupt :
                 wrapper.printInfo(_("Job %s interrupted by the administrator !") % wrapper.Ticket.JobId, "warn")
                 retcode = 0
-            except SystemExit, err :
+            except SystemExit as err :
                 retcode = err.code
             except :
                 try :

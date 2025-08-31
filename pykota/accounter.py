@@ -81,7 +81,7 @@ class AccounterBase :
 
     def computeJobSize(self) :
         """Must be overriden in children classes."""
-        raise RuntimeError, "AccounterBase.computeJobSize() must be overriden !"
+        raise RuntimeError("AccounterBase.computeJobSize() must be overriden !")
 
 def openAccounter(kotafilter, ispreaccounter=0) :
     """Returns a connection handle to the appropriate accounter."""
@@ -95,6 +95,6 @@ def openAccounter(kotafilter, ispreaccounter=0) :
                                                          "accounters",
                                                          "%s.py" % backend.lower()))
     except ImportError :
-        raise PyKotaAccounterError, _("Unsupported accounter backend %s") % backend
+        raise PyKotaAccounterError(_("Unsupported accounter backend %s") % backend)
     else :
         return accounterbackend.Accounter(kotafilter, args, ispreaccounter, backend.lower())

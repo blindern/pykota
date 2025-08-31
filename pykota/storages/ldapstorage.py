@@ -48,7 +48,7 @@ try :
     import ldap
     import ldap.modlist
 except ImportError :
-    raise PyKotaStorageError, "This python version (%s) doesn't seem to have the python-ldap module installed correctly." % sys.version.split()[0]
+    raise PyKotaStorageError("This python version (%s) doesn't seem to have the python-ldap module installed correctly." % sys.version.split()[0])
 else :
     try :
         from ldap.cidict import cidict
@@ -109,7 +109,7 @@ class Storage(BaseStorage) :
                                           repr(self.saveddbname),
                                           repr(self.saveduser)))
                 return # All is fine here.
-        raise PyKotaStorageError, message
+        raise PyKotaStorageError(message)
 
     def close(self) :
         """Closes the database connection."""
@@ -163,16 +163,16 @@ class Storage(BaseStorage) :
                     # and iPlanet Directory Server (5.1 SP3)
                     fields = ["*", "createTimestamp"]
 
-                if self.useldapcache and (not flushcache) and (scope == ldap.SCOPE_BASE) and self.ldapcache.has_key(base) :
+                if self.useldapcache and (not flushcache) and (scope == ldap.SCOPE_BASE) and base in self.ldapcache :
                     entry = self.ldapcache[base]
                     self.tool.logdebug("LDAP cache hit %s => %s" % (base, entry))
                     result = [(base, entry)]
                 else :
                     self.querydebug("QUERY : Filter : %s, BaseDN : %s, Scope : %s, Attributes : %s" % (key, base, scope, fields))
                     result = self.database.search_s(base, scope, key, fields)
-            except ldap.NO_SUCH_OBJECT, msg :
-                raise PyKotaStorageError, (_("Search base %s doesn't seem to exist. Probable misconfiguration. Please double check /etc/pykota/pykota.conf : %s") % (base, msg))
-            except ldap.LDAPError, msg :
+            except ldap.NO_SUCH_OBJECT as msg :
+                raise PyKotaStorageError((_("Search base %s doesn't seem to exist. Probable misconfiguration. Please double check /etc/pykota/pykota.conf : %s") % (base, msg)))
+            except ldap.LDAPError as msg :
                 message = (_("Search for %s(%s) from %s(scope=%s) returned no answer.") % (key, fields, base, scope)) + " : %s" % msg
                 self.tool.printInfo("LDAP error : %s" % message, "error")
                 self.tool.printInfo("LDAP connection will be closed and reopened.", "warn")
@@ -186,7 +186,7 @@ class Storage(BaseStorage) :
                         self.querydebug("LDAP cache store %s => %s" % (dn, attributes))
                         self.ldapcache[dn] = attributes
                 return result
-        raise PyKotaStorageError, message
+        raise PyKotaStorageError(message)
 
     def doAdd(self, dn, fields) :
         """Adds an entry in the LDAP directory."""
@@ -198,9 +198,9 @@ class Storage(BaseStorage) :
                 entry = ldap.modlist.addModlist(fields)
                 self.querydebug("%s" % entry)
                 self.database.add_s(dn, entry)
-            except ldap.ALREADY_EXISTS, msg :
-                raise PyKotaStorageError, "Entry %s already exists : %s" % (dn, msg)
-            except ldap.LDAPError, msg :
+            except ldap.ALREADY_EXISTS as msg :
+                raise PyKotaStorageError("Entry %s already exists : %s" % (dn, msg))
+            except ldap.LDAPError as msg :
                 message = (_("Problem adding LDAP entry (%s, %s)") % (dn, str(fields))) + " : %s" % msg
                 self.tool.printInfo("LDAP error : %s" % message, "error")
                 self.tool.printInfo("LDAP connection will be closed and reopened.", "warn")
@@ -211,7 +211,7 @@ class Storage(BaseStorage) :
                     self.querydebug("LDAP cache add %s => %s" % (dn, fields))
                     self.ldapcache[dn] = fields
                 return dn
-        raise PyKotaStorageError, message
+        raise PyKotaStorageError(message)
 
     def doDelete(self, dn) :
         """Deletes an entry from the LDAP directory."""
@@ -222,7 +222,7 @@ class Storage(BaseStorage) :
                 self.database.delete_s(dn)
             except ldap.NO_SUCH_OBJECT :
                 self.tool.printInfo("Entry %s was already missing before we deleted it. This **MAY** be normal." % dn, "info")
-            except ldap.LDAPError, msg :
+            except ldap.LDAPError as msg :
                 message = (_("Problem deleting LDAP entry (%s)") % dn) + " : %s" % msg
                 self.tool.printInfo("LDAP error : %s" % message, "error")
                 self.tool.printInfo("LDAP connection will be closed and reopened.", "warn")
@@ -236,7 +236,7 @@ class Storage(BaseStorage) :
                     except KeyError :
                         pass
                 return
-        raise PyKotaStorageError, message
+        raise PyKotaStorageError(message)
 
     def doModify(self, dn, fields, ignoreold=1, flushcache=0) :
         """Modifies an entry in the LDAP directory."""
@@ -245,7 +245,7 @@ class Storage(BaseStorage) :
             try :
                 # TODO : take care of, and update LDAP specific cache
                 if self.useldapcache and not flushcache :
-                    if self.ldapcache.has_key(dn) :
+                    if dn in self.ldapcache :
                         old = self.ldapcache[dn]
                         self.querydebug("LDAP cache hit %s => %s" % (dn, old))
                         oldentry = {}
@@ -279,7 +279,7 @@ class Storage(BaseStorage) :
                 self.querydebug("MODIFY : %s ==> %s ==> %s" % (fields, entry, modentry))
                 if modentry :
                     self.database.modify_s(dn, modentry)
-            except ldap.LDAPError, msg :
+            except ldap.LDAPError as msg :
                 message = (_("Problem modifying LDAP entry (%s, %s)") % (dn, fields)) + " : %s" % msg
                 self.tool.printInfo("LDAP error : %s" % message, "error")
                 self.tool.printInfo("LDAP connection will be closed and reopened.", "warn")
@@ -298,7 +298,7 @@ class Storage(BaseStorage) :
                                 pass
                     self.querydebug("LDAP cache update %s => %s" % (dn, cachedentry))
                 return dn
-        raise PyKotaStorageError, message
+        raise PyKotaStorageError(message)
 
     def filterNames(self, records, attribute, patterns=None) :
         """Returns a list of 'attribute' from a list of records.
@@ -375,7 +375,7 @@ class Storage(BaseStorage) :
             user.LimitBy = databaseToUnicode(fields.get("pykotaLimitBy", ["quota"])[0])
             result = self.doSearch("(&(objectClass=pykotaAccountBalance)(|(pykotaUserName=%s)(%s=%s)))" % (username, self.info["balancerdn"], username), ["pykotaBalance", "pykotaLifeTimePaid", "pykotaPayments", "pykotaOverCharge"], base=self.info["balancebase"])
             if not result :
-                raise PyKotaStorageError, _("No pykotaAccountBalance object found for user %s. Did you create LDAP entries manually ?") % username
+                raise PyKotaStorageError(_("No pykotaAccountBalance object found for user %s. Did you create LDAP entries manually ?") % username)
             else :
                 fields = result[0][1]
                 user.idbalance = result[0][0]
@@ -619,7 +619,7 @@ class Storage(BaseStorage) :
                 lastjob.JobCopies = int(fields.get("pykotaCopies", [0])[0])
                 lastjob.JobOptions = databaseToUnicode(fields.get("pykotaOptions", [""])[0])
                 lastjob.JobHostName = databaseToUnicode(fields.get("pykotaHostName", [""])[0])
-                lastjob.JobSizeBytes = fields.get("pykotaJobSizeBytes", [0L])[0]
+                lastjob.JobSizeBytes = fields.get("pykotaJobSizeBytes", [0])[0]
                 lastjob.JobBillingCode = databaseToUnicode(fields.get("pykotaBillingCode", [None])[0])
                 lastjob.JobMD5Sum = databaseToUnicode(fields.get("pykotaMD5Sum", [None])[0])
                 lastjob.JobPages = fields.get("pykotaPages", [""])[0]
@@ -710,7 +710,7 @@ class Storage(BaseStorage) :
             patdict = {}.fromkeys(patterns)
             for (printerid, fields) in result :
                 printername = databaseToUnicode(fields.get("pykotaPrinterName", [""])[0] or fields.get(self.info["printerrdn"], [""])[0])
-                if patdict.has_key(printername) or self.tool.matchString(printername, patterns) :
+                if printername in patdict or self.tool.matchString(printername, patterns) :
                     printer = StoragePrinter(self, printername)
                     printer.ident = printerid
                     printer.PricePerJob = float(fields.get("pykotaPricePerJob", [0.0])[0] or 0.0)
@@ -745,7 +745,7 @@ class Storage(BaseStorage) :
             patdict = {}.fromkeys(patterns)
             for (userid, fields) in result :
                 username = databaseToUnicode(fields.get("pykotaUserName", [""])[0] or fields.get(self.info["userrdn"], [""])[0])
-                if patdict.has_key(username) or self.tool.matchString(username, patterns) :
+                if username in patdict or self.tool.matchString(username, patterns) :
                     user = StorageUser(self, username)
                     user.ident = userid
                     user.Email = databaseToUnicode(fields.get(self.info["usermail"], [None])[0])
@@ -757,7 +757,7 @@ class Storage(BaseStorage) :
                                               ["pykotaBalance", "pykotaLifeTimePaid", "pykotaPayments", "pykotaOverCharge"], \
                                               base=self.info["balancebase"])
                     if not result :
-                        raise PyKotaStorageError, _("No pykotaAccountBalance object found for user %s. Did you create LDAP entries manually ?") % username
+                        raise PyKotaStorageError(_("No pykotaAccountBalance object found for user %s. Did you create LDAP entries manually ?") % username)
                     else :
                         fields = result[0][1]
                         user.idbalance = result[0][0]
@@ -806,7 +806,7 @@ class Storage(BaseStorage) :
             patdict = {}.fromkeys(patterns)
             for (groupid, fields) in result :
                 groupname = databaseToUnicode(fields.get("pykotaGroupName", [""])[0] or fields.get(self.info["grouprdn"], [""])[0])
-                if patdict.has_key(groupname) or self.tool.matchString(groupname, patterns) :
+                if groupname in patdict or self.tool.matchString(groupname, patterns) :
                     group = StorageGroup(self, groupname)
                     group.ident = groupid
                     group.Name = databaseToUnicode(fields.get("pykotaGroupName", [groupname])[0])
@@ -948,7 +948,7 @@ class Storage(BaseStorage) :
                 if action.lower() == "warn" :
                     self.tool.printInfo(_("%s. A new entry will be created instead.") % message, "warn")
                 else : # 'fail' or incorrect setting
-                    raise PyKotaStorageError, "%s. Action aborted. Please check your configuration." % message
+                    raise PyKotaStorageError("%s. Action aborted. Please check your configuration." % message)
 
         if mustadd :
             if self.info["userbase"] == self.info["balancebase"] :
@@ -1018,7 +1018,7 @@ class Storage(BaseStorage) :
                 if action.lower() == "warn" :
                     self.tool.printInfo("%s. A new entry will be created instead." % message, "warn")
                 else : # 'fail' or incorrect setting
-                    raise PyKotaStorageError, "%s. Action aborted. Please check your configuration." % message
+                    raise PyKotaStorageError("%s. Action aborted. Please check your configuration." % message)
 
         if mustadd :
             fields = { self.info["grouprdn"] : gname,
@@ -1037,7 +1037,7 @@ class Storage(BaseStorage) :
             result = self.doSearch("objectClass=pykotaGroup", None, base=group.ident, scope=ldap.SCOPE_BASE)
             if result :
                 fields = result[0][1]
-                if not fields.has_key(self.info["groupmembers"]) :
+                if self.info["groupmembers"] not in fields :
                     fields[self.info["groupmembers"]] = []
                 fields[self.info["groupmembers"]].append(unicodeToDatabase(user.Name))
                 self.doModify(group.ident, fields)
@@ -1049,7 +1049,7 @@ class Storage(BaseStorage) :
             result = self.doSearch("objectClass=pykotaGroup", None, base=group.ident, scope=ldap.SCOPE_BASE)
             if result :
                 fields = result[0][1]
-                if not fields.has_key(self.info["groupmembers"]) :
+                if self.info["groupmembers"] not in fields :
                     fields[self.info["groupmembers"]] = []
                 try :
                     fields[self.info["groupmembers"]].remove(unicodeToDatabase(user.Name))
@@ -1366,7 +1366,7 @@ class Storage(BaseStorage) :
                 job.JobCopies = int(fields.get("pykotaCopies", [0])[0])
                 job.JobOptions = databaseToUnicode(fields.get("pykotaOptions", [""])[0])
                 job.JobHostName = databaseToUnicode(fields.get("pykotaHostName", [""])[0])
-                job.JobSizeBytes = fields.get("pykotaJobSizeBytes", [0L])[0]
+                job.JobSizeBytes = fields.get("pykotaJobSizeBytes", [0])[0]
                 job.JobBillingCode = databaseToUnicode(fields.get("pykotaBillingCode", [None])[0])
                 job.JobMD5Sum = databaseToUnicode(fields.get("pykotaMD5Sum", [None])[0])
                 job.JobPages = fields.get("pykotaPages", [""])[0]
@@ -1815,7 +1815,7 @@ class Storage(BaseStorage) :
             patdict = {}.fromkeys(patterns)
             for (codeid, fields) in result :
                 codename = databaseToUnicode(fields.get("pykotaBillingCode", [""])[0])
-                if patdict.has_key(codename) or self.tool.matchString(codename, patterns) :
+                if codename in patdict or self.tool.matchString(codename, patterns) :
                     code = StorageBillingCode(self, codename)
                     code.ident = codeid
                     code.PageCounter = int(fields.get("pykotaPageCounter", [0])[0])

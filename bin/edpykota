@@ -71,7 +71,7 @@ class EdPyKota(PyKotaTool) :
         names = self.sanitizeNames(names, options.groups)
         if not names :
             if isdelete :
-                raise PyKotaCommandLineError, _("You must specify users or groups names on the command line.")
+                raise PyKotaCommandLineError(_("You must specify users or groups names on the command line."))
             names = [u"*"]
 
         if (((islist or isdelete) and (options.used  \
@@ -88,7 +88,7 @@ class EdPyKota(PyKotaTool) :
                                   or options.increase \
                                   or options.reset \
                                   or options.hardreset)) :
-            raise PyKotaCommandLineError, _("Incompatible command line options. Please look at the online help or manual page.")
+            raise PyKotaCommandLineError(_("Incompatible command line options. Please look at the online help or manual page."))
 
         suffix = (options.groups and "Group") or "User"
         printernames = options.printer.split(",")
@@ -128,14 +128,14 @@ class EdPyKota(PyKotaTool) :
                 try :
                     int(used)
                 except ValueError :
-                    raise PyKotaCommandLineError, _("Invalid used value %s.") % used
+                    raise PyKotaCommandLineError(_("Invalid used value %s.") % used)
 
             increase = options.increase
             if increase :
                 try :
                     increase = int(increase.strip())
                 except ValueError :
-                    raise PyKotaCommandLineError, _("Invalid increase value %s.") % increase
+                    raise PyKotaCommandLineError(_("Invalid increase value %s.") % increase)
 
             softlimit = hardlimit = None
             if not options.noquota :
@@ -145,14 +145,14 @@ class EdPyKota(PyKotaTool) :
                         if softlimit < 0 :
                             raise ValueError
                     except ValueError :
-                        raise PyKotaCommandLineError, _("Invalid softlimit value %s.") % options.softlimit
+                        raise PyKotaCommandLineError(_("Invalid softlimit value %s.") % options.softlimit)
                 if options.hardlimit :
                     try :
                         hardlimit = int(options.hardlimit.strip())
                         if hardlimit < 0 :
                             raise ValueError
                     except ValueError :
-                        raise PyKotaCommandLineError, _("Invalid hardlimit value %s.") % options.hardlimit
+                        raise PyKotaCommandLineError(_("Invalid hardlimit value %s.") % options.hardlimit)
                 if (softlimit is not None) and (hardlimit is not None) and (hardlimit < softlimit) :
                     self.printInfo(_("Hard limit %(hardlimit)i is less than soft limit %(softlimit)i, values will be exchanged.") \
                                        % locals())
@@ -175,7 +175,7 @@ class EdPyKota(PyKotaTool) :
                         if maxjobsize < 0 :
                             raise ValueError
                     except ValueError :
-                        raise PyKotaCommandLineError, _("Invalid maximum job size value %s") % options.maxjobsize
+                        raise PyKotaCommandLineError(_("Invalid maximum job size value %s") % options.maxjobsize)
             else :
                 maxjobsize = None
 

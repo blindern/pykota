@@ -26,13 +26,8 @@ import glob
 import os
 import stat
 import shutil
-try :
-    from distutils.core import setup
-    from distutils.command.install_data import install_data
-except ImportError, msg :
-    sys.stderr.write("%s\n" % msg)
-    sys.stderr.write("You need the DistUtils Python module.\nunder Debian, you may have to install the python-dev package.\nOf course, YMMV.\n")
-    sys.exit(-1)
+from setuptools import setup
+from setuptools.command.install import install
 
 sys.path.insert(0, "pykota")
 from pykota.version import __version__, __doc__
@@ -129,16 +124,19 @@ sqlitedirectory = os.sep.join([directory, "sqlite"])
 data_files.append((sqlitedirectory, ["initscripts/sqlite/README.sqlite",
                                      "initscripts/sqlite/pykota-sqlite.sql"]))
 
-class MyInstallData(install_data) :
+class MyInstall(install) :
     """A special class to ensure permissions are OK on the cupspykota backend."""
     def run(self) :
         """Launches the normal installation and then tweaks permissions."""
-        install_data.run(self)
+        install.run(self)
         if not self.dry_run :
-            cupspykota = [ filename for filename in self.get_outputs() if filename.endswith("cupspykota") ][0]
-            os.chmod(cupspykota, stat.S_IRWXU)
+            # Find cupspykota in the installed scripts
+            for script_path in self.get_outputs():
+                if script_path.endswith("cupspykota"):
+                    os.chmod(script_path, stat.S_IRWXU)
+                    break
 
-os.umask(022)
+os.umask(0o022)
 setup(name = "pykota", version = __version__,
       license = "GNU GPL version 3 or later",
       description = __doc__,
@@ -157,4 +155,4 @@ setup(name = "pykota", version = __version__,
                   "bin/pykosd", "bin/edpykota", "bin/repykota", \
                   "bin/warnpykota", "bin/pykotme", "bin/pkprinters" ],
       data_files = data_files,
-      cmdclass = { "install_data" : MyInstallData })
+      cmdclass = { "install" : MyInstall })

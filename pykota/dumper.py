@@ -80,7 +80,7 @@ class DumPyKota(PyKotaTool) :
 
         datatype = options.data
         if datatype not in self.validdatatypes.keys() :
-            raise PyKotaCommandLineError, _("Invalid data type '%(datatype)s', see help.") % locals()
+            raise PyKotaCommandLineError(_("Invalid data type '%(datatype)s', see help.") % locals())
 
         orderby = options.orderby or []
         if orderby :
@@ -108,7 +108,7 @@ class DumPyKota(PyKotaTool) :
                         if filterkey not in self.validfilterkeys :
                             raise ValueError
                     except ValueError :
-                        raise PyKotaCommandLineError, _("Invalid filter value '%(filterexp)s', see help.") % locals()
+                        raise PyKotaCommandLineError(_("Invalid filter value '%(filterexp)s', see help.") % locals())
                     else :
                         extractonly.update({ filterkey : filtervalue })
 
@@ -116,15 +116,15 @@ class DumPyKota(PyKotaTool) :
         if (format not in self.validformats.keys()) \
            or ((format == u"cups") \
               and ((datatype != u"history") or options.sum)) :
-            raise PyKotaCommandLineError, _("Invalid format '%(format)s', see help.") % locals()
+            raise PyKotaCommandLineError(_("Invalid format '%(format)s', see help.") % locals())
 
         if (format == u"xml") and not hasJAXML :
-            raise PyKotaToolError, _("XML output is disabled because the jaxml module is not available.")
+            raise PyKotaToolError(_("XML output is disabled because the jaxml module is not available."))
 
         if datatype not in (u"payments", u"history") :
             if options.sum :
-                raise PyKotaCommandLineError, _("Invalid data type '%(datatype)s' for --sum command line option, see help.") % locals()
-            if extractonly.has_key(u"start") or extractonly.has_key(u"end") :
+                raise PyKotaCommandLineError(_("Invalid data type '%(datatype)s' for --sum command line option, see help.") % locals())
+            if u"start" in extractonly or u"end" in extractonly :
                 self.printInfo(_("Invalid filter for the '%(datatype)s' data type.") % locals(), "warn")
                 try :
                     del extractonly[u"start"]
@@ -258,7 +258,7 @@ class DumPyKota(PyKotaTool) :
                         line.append(strvalue)
 
                     self.outfile.write("%s\n" % separator.join(line))
-        except IOError, msg :
+        except IOError as msg :
             pass # We used to return an error, not really needed
         return 0
 
