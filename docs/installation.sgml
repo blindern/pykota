@@ -822,12 +822,7 @@ jerome@nordine:~/pykota-1.26_official$ ./bin/pksetup debian
               In 99% of the cases, you won't need to install this.
             </para>
           </listitem>
-          <listitem>
-            <para>
-              eGenix' mxDateTime Python module version 2.0.3 or above. It must match your default Python version.
-              You can download it from <ulink url="http://www.egenix.com">http://www.egenix.com</ulink>.
-            </para>
-          </listitem>
+
           <listitem>
             <para>
               The <application>pysnmp</application> Python module version 4.x, or higher.

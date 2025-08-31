@@ -28,8 +28,7 @@ import os
 import cgi
 import urllib
 from xml.sax import saxutils
-
-from mx import DateTime
+from datetime import datetime
 
 import pykota.appinit
 
@@ -248,7 +247,7 @@ class PyKotaReportGUI(PyKotaTool) :
                             billingcode_url = '<a href="%s?%s">%s</a>' % (os.environ.get("SCRIPT_NAME", ""), urllib.urlencode({"history" : 1, "billingcode" : job.JobBillingCode}), job.JobBillingCode)
                         else :
                             billingcode_url = None
-                        curdate = DateTime.ISO.ParseDateTime(str(job.JobDate)[:19])
+                        curdate = datetime.fromisoformat(str(job.JobDate)[:19].replace(' ', 'T'))
                         self.report.append('<tr class="%s">%s</tr>' % \
                                               (oddevenclass, \
                                                "".join(["<td>%s</td>" % (h or "&nbsp;") \

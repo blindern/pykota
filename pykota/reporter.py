@@ -23,8 +23,9 @@
 """This module defines bases classes used by all reporters."""
 
 import os
-import imp
-from mx import DateTime
+import importlib
+from datetime import datetime, timedelta
+import calendar
 
 from pykota.errors import PyKotaReporterError
 
@@ -91,8 +92,8 @@ class BaseReporter :
             elif (quota.HardLimit is None) and (quota.SoftLimit is not None) and (pagecounter >= quota.SoftLimit) :
                 datelimit = "DENY"
             elif quota.DateLimit is not None :
-                now = DateTime.now()
-                datelimit = DateTime.ISO.ParseDateTime(str(quota.DateLimit)[:19])
+                now = datetime.now()
+                datelimit = datetime.fromisoformat(str(quota.DateLimit)[:19].replace(' ', 'T'))
                 if now >= datelimit :
                     datelimit = "DENY"
             else :
@@ -142,10 +143,13 @@ class BaseReporter :
 def openReporter(tool, reporttype, printers, ugnames, isgroup) :
     """Returns a reporter instance of the proper reporter."""
     try :
-        reporterbackend = imp.load_source("reporterbackend",
-                                           os.path.join(os.path.dirname(__file__),
-                                                        "reporters",
-                                                        "%s.py" % reporttype.lower()))
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("reporterbackend",
+                                                     os.path.join(os.path.dirname(__file__),
+                                                                  "reporters",
+                                                                  "%s.py" % reporttype.lower()))
+        reporterbackend = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(reporterbackend)
     except ImportError :
         raise PyKotaReporterError(_("Unsupported reporter backend %s") % reporttype)
     else :

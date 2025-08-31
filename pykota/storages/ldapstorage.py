@@ -33,8 +33,7 @@ import time
 import md5
 import base64
 import random
-
-from mx import DateTime
+from datetime import datetime, timedelta, timezone
 
 from pykota.errors import PyKotaStorageError
 from pykota.storage import BaseStorage, \
@@ -634,8 +633,10 @@ class Storage(BaseStorage) :
                 if lastjob.JobTitle == lastjob.JobFileName == lastjob.JobOptions == u"hidden" :
                     (lastjob.JobTitle, lastjob.JobFileName, lastjob.JobOptions) = (_("Hidden because of privacy concerns"),) * 3
                 date = fields.get("createTimestamp", ["19700101000000Z"])[0] # It's in UTC !
-                mxtime = DateTime.strptime(date[:14], "%Y%m%d%H%M%S").localtime()
-                lastjob.JobDate = mxtime.strftime("%Y-%m-%d %H:%M:%S")
+                utc_time = datetime.strptime(date[:14], "%Y%m%d%H%M%S")
+                # Convert UTC to local time
+                local_time = utc_time.replace(tzinfo=timezone.utc).astimezone()
+                lastjob.JobDate = local_time.strftime("%Y-%m-%d %H:%M:%S")
                 lastjob.Exists = True
         return lastjob
 
@@ -1178,7 +1179,7 @@ class Storage(BaseStorage) :
         payments = []
         for payment in user.Payments :
             payments.append("%s # %s # %s" % (payment[0], str(payment[1]), base64.encodestring(unicodeToDatabase(payment[2])).strip()))
-        payments.append("%s # %s # %s" % (str(DateTime.now()), str(amount), base64.encodestring(unicodeToDatabase(comment)).strip()))
+        payments.append("%s # %s # %s" % (str(datetime.now()), str(amount), base64.encodestring(unicodeToDatabase(comment)).strip()))
         fields = {
                    "pykotaPayments" : payments,
                  }
@@ -1381,8 +1382,10 @@ class Storage(BaseStorage) :
                 if job.JobTitle == job.JobFileName == job.JobOptions == u"hidden" :
                     (job.JobTitle, job.JobFileName, job.JobOptions) = (_("Hidden because of privacy concerns"),) * 3
                 date = fields.get("createTimestamp", ["19700101000000Z"])[0] # It's in UTC !
-                mxtime = DateTime.strptime(date[:14], "%Y%m%d%H%M%S").localtime()
-                job.JobDate = mxtime.strftime("%Y-%m-%d %H:%M:%S")
+                utc_time = datetime.strptime(date[:14], "%Y%m%d%H%M%S")
+                # Convert UTC to local time
+                local_time = utc_time.replace(tzinfo=timezone.utc).astimezone()
+                job.JobDate = local_time.strftime("%Y-%m-%d %H:%M:%S")
                 if ((start is None) and (end is None)) or \
                    ((start is None) and (job.JobDate <= end)) or \
                    ((end is None) and (job.JobDate >= start)) or \

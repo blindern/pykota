@@ -69,7 +69,6 @@ if __name__ == "__main__" :
     modulestocheck = [ ("Python-PygreSQL", "pg", "PygreSQL is mandatory if you want to use PostgreSQL as the quota database backend.\nSee http://www.pygresql.org or use 'apt-get install python-pygresql'"),
                        ("Python-SQLite", "sqlite3", "Python-SQLite is mandatory if you want to use SQLite as the quota database backend.\nSQLite3 is included with Python 3.6+"),
                        ("MySQL-Python", "MySQLdb", "MySQL-Python is mandatory if you want to use MySQL as the quota database backend.\nSee http://sourceforge.net/projects/mysql-python or use 'apt-get install python-mysqldb'"),
-                       ("Python-egenix-mxDateTime", "mx.DateTime", "eGenix' mxDateTime is mandatory for PyKota to work.\nSee http://www.egenix.com or use 'apt-get install python-egenix-mxdatetime'"),
                        ("Python-LDAP", "ldap", "Python-LDAP is mandatory if you plan to use an LDAP\ndirectory as the quota database backend.\nSee http://python-ldap.sf.net or use 'apt-get install python-ldap'"),
                        ("Python-OSD", "pyosd", "Python-OSD is recommended if you plan to use the X Window On Screen Display\nprint quota reminder named pykosd. See http://repose.cx/pyosd/ or use 'apt-get install python-osd'"),
                        ("Python-SNMP", "pysnmp", "Python-SNMP is recommended if you plan to use hardware\naccounting with printers which support SNMP.\nSee http://pysnmp.sf.net or use 'apt-get install python-pysnmp4'"),

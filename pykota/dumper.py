@@ -26,8 +26,7 @@ import sys
 import os
 import pwd
 from xml.sax import saxutils
-
-from mx import DateTime
+from datetime import datetime, timezone
 
 try :
     import jaxml
@@ -207,7 +206,7 @@ class DumPyKota(PyKotaTool) :
             if keys :
                 # If we have several keys, we can sort only on the first one, because they
                 # will vary the same way.
-                sortedentries.sort(lambda x, y, fnum=fieldnumber[keys[0]] : cmp(x[fnum], y[fnum]))
+                sortedentries.sort(key=lambda x: x[fieldnumber[keys[0]]])
             totals = {}
             for (k, t) in totalize :
                 totals[k] = { "convert" : t, "value" : 0.0 }
@@ -284,21 +283,26 @@ class DumPyKota(PyKotaTool) :
             fields[fieldnames[i]] = i
         sortindex = fields["jobdate"]
         entries = entries[1:]
-        entries.sort(lambda m, n, si=sortindex : cmp(m[si], n[si]))
+        entries.sort(key=lambda x: x[sortindex])
         for entry in entries :
             printername = entry[fields["printername"]]
             username = entry[fields["username"]]
             jobid = entry[fields["jobid"]]
-            jobdate = DateTime.ISO.ParseDateTime(str(entry[fields["jobdate"]])[:19])
-            gmtoffset = jobdate.gmtoffset()
+            jobdate = datetime.fromisoformat(str(entry[fields["jobdate"]])[:19].replace(' ', 'T'))
+            # Convert to local timezone if needed
+            if jobdate.tzinfo is None:
+                jobdate = jobdate.replace(tzinfo=timezone.utc).astimezone()
+            gmtoffset = jobdate.utcoffset()
+            offset_hours = int(gmtoffset.total_seconds() // 3600)
+            offset_minutes = int((gmtoffset.total_seconds() % 3600) // 60)
             jobdate = "%02i/%s/%04i:%02i:%02i:%02i %+03i%02i" % (jobdate.day,
                                                                  months[jobdate.month - 1],
                                                                  jobdate.year,
                                                                  jobdate.hour,
                                                                  jobdate.minute,
                                                                  jobdate.second,
-                                                                 gmtoffset.hour,
-                                                                 gmtoffset.minute)
+                                                                 offset_hours,
+                                                                 offset_minutes)
             jobsize = entry[fields["jobsize"]] or 0
             copies = entry[fields["copies"]] or 1
             hostname = entry[fields["hostname"]] or ""

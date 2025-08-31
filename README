@@ -138,7 +138,6 @@ Prerequisite :
 
     - CUPS (http://www.cups.org). PyKota v1.27 requires CUPS v1.3.4 or higher.
     - Python v3.6 or higher (http://www.python.org)
-    - eGenix' mxDateTime Python extension (http://www.egenix.com)
     - The pkpgcounter command line tool, version 1.56 or higher. This
       tool is now mandatory for PyKota to work.
       (http://www.pykota.com/software/pkpgcounter)

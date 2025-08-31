@@ -34,8 +34,7 @@ import time
 from email.mime.text import MIMEText
 from email.header import Header
 import email.utils as email_Utils
-
-from mx import DateTime
+from datetime import datetime, timedelta
 
 from pykota import utils
 from pykota.errors import PyKotaCommandLineError
@@ -328,11 +327,11 @@ class PyKotaTool(Tool) :
                     else :
                         hardlimit = int(userpquota.HardLimit)
                         if softlimit <= pagecounter < hardlimit :
-                            now = DateTime.now()
+                            now = datetime.now()
                             if userpquota.DateLimit is not None :
-                                datelimit = DateTime.ISO.ParseDateTime(str(userpquota.DateLimit)[:19])
+                                datelimit = datetime.fromisoformat(str(userpquota.DateLimit)[:19].replace(' ', 'T'))
                             else :
-                                datelimit = now + self.config.getGraceDelay(printer.Name)
+                                datelimit = now + timedelta(days=self.config.getGraceDelay(printer.Name))
                                 userpquota.setDateLimit(datelimit)
                             if now < datelimit :
                                 action = "WARN"
@@ -387,11 +386,11 @@ class PyKotaTool(Tool) :
                     else :
                         hardlimit = int(grouppquota.HardLimit)
                         if softlimit <= val < hardlimit :
-                            now = DateTime.now()
+                            now = datetime.now()
                             if grouppquota.DateLimit is not None :
-                                datelimit = DateTime.ISO.ParseDateTime(str(grouppquota.DateLimit)[:19])
+                                datelimit = datetime.fromisoformat(str(grouppquota.DateLimit)[:19].replace(' ', 'T'))
                             else :
-                                datelimit = now + self.config.getGraceDelay(printer.Name)
+                                datelimit = now + timedelta(days=self.config.getGraceDelay(printer.Name))
                                 grouppquota.setDateLimit(datelimit)
                             if now < datelimit :
                                 action = "WARN"

@@ -55,16 +55,6 @@
       status for each of PyKota's dependencies with
       'python pykota/checkdeps.py'
     </description>
-    <entry name="python-egenix-mxdatetime" display="true">
-      <states>
-        <state name="Pass">python-egenix-mxdatetime is installed</state>
-        <state name="Fail">python-egenix-mxdatetime is not installed</state>
-      </states>
-      <description>
-        python-egenix-mxdatetime is required for PyKota to work.
-        You must install it with 'apt-get install python-egenix-mxdatetime'
-      </description>
-    </entry>
     <entry name="python-imaging" display="true">
       <states>
         <state name="Pass">python-imaging is installed</state>

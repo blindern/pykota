@@ -27,8 +27,6 @@ import sys
 import os
 import pwd
 
-from mx import DateTime
-
 import pykota.appinit
 from pykota.utils import run
 from pykota.commandline import PyKotaOptionParser

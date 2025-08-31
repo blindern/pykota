@@ -40,8 +40,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.header import Header
 import email.Utils
-
-from mx import DateTime
+from datetime import datetime, timedelta
 
 import pykota.appinit
 from pykota.utils import *
@@ -736,12 +735,12 @@ class CUPSBackend(PyKotaTool) :
                         else :
                             # avoidduplicatebanners is an integer, since NO,
                             # YES and 0 are already handled
-                            now = DateTime.now()
+                            now = datetime.now()
                             try :
-                                previous = DateTime.ISO.ParseDateTime(str(self.Printer.LastJob.JobDate)[:19])
+                                previous = datetime.fromisoformat(str(self.Printer.LastJob.JobDate)[:19].replace(' ', 'T'))
                             except :
                                 previous = now
-                            difference = (now - previous).seconds
+                            difference = (now - previous).total_seconds()
                             self.logdebug("Difference with previous job : %.2f seconds. Try to avoid banners for : %.2f seconds." % (difference, avoidduplicatebanners))
                             if difference < avoidduplicatebanners :
                                 self.logdebug("Duplicate banner avoided because previous banner is less than %.2f seconds old." % avoidduplicatebanners)
@@ -876,12 +875,12 @@ class CUPSBackend(PyKotaTool) :
             if self.Printer.LastJob.Exists \
                     and (self.Printer.LastJob.UserName == self.UserName) \
                     and (self.Printer.LastJob.JobMD5Sum == self.JobMD5Sum) :
-                now = DateTime.now()
+                now = datetime.now()
                 try :
-                    previous = DateTime.ISO.ParseDateTime(str(self.Printer.LastJob.JobDate)[:19])
+                    previous = datetime.fromisoformat(str(self.Printer.LastJob.JobDate)[:19].replace(' ', 'T'))
                 except :
                     previous = now
-                difference = (now - previous).seconds
+                difference = (now - previous).total_seconds()
                 duplicatesdelay = self.config.getDuplicatesDelay(self.PrinterName)
                 self.logdebug("Difference with previous job : %.2f seconds. Duplicates delay : %.2f seconds." % (difference, duplicatesdelay))
                 if difference > duplicatesdelay :

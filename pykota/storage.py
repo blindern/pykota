@@ -23,8 +23,9 @@
 """This module is the database abstraction layer for PyKota."""
 
 import os
-import imp
-from mx import DateTime
+import importlib
+from datetime import datetime, timedelta
+import calendar
 
 from pykota.errors import PyKotaStorageError
 
@@ -262,8 +263,11 @@ class StorageUserPQuota(StorageObject) :
 
     def setDateLimit(self, datelimit) :
         """Sets the date limit for this quota."""
-        datelimit = DateTime.ISO.ParseDateTime(str(datelimit)[:19])
-        date = "%04i-%02i-%02i %02i:%02i:%02i" % (datelimit.year, datelimit.month, datelimit.day, datelimit.hour, datelimit.minute, datelimit.second)
+        if isinstance(datelimit, datetime):
+            parsed_date = datelimit
+        else:
+            parsed_date = datetime.fromisoformat(str(datelimit)[:19].replace(' ', 'T'))
+        date = "%04i-%02i-%02i %02i:%02i:%02i" % (parsed_date.year, parsed_date.month, parsed_date.day, parsed_date.hour, parsed_date.minute, parsed_date.second)
         self.parent.writeUserPQuotaDateLimit(self, date)
         self.DateLimit = date
 
@@ -415,13 +419,16 @@ class StorageGroupPQuota(StorageObject) :
 
     def setDateLimit(self, datelimit) :
         """Sets the date limit for this quota."""
-        datelimit = DateTime.ISO.ParseDateTime(str(datelimit)[:19])
-        date = "%04i-%02i-%02i %02i:%02i:%02i" % (datelimit.year, \
-                                                  datelimit.month, \
-                                                  datelimit.day, \
-                                                  datelimit.hour, \
-                                                  datelimit.minute, \
-                                                  datelimit.second)
+        if isinstance(datelimit, datetime):
+            parsed_date = datelimit
+        else:
+            parsed_date = datetime.fromisoformat(str(datelimit)[:19].replace(' ', 'T'))
+        date = "%04i-%02i-%02i %02i:%02i:%02i" % (parsed_date.year, \
+                                                  parsed_date.month, \
+                                                  parsed_date.day, \
+                                                  parsed_date.hour, \
+                                                  parsed_date.minute, \
+                                                  parsed_date.second)
         self.parent.writeGroupPQuotaDateLimit(self, date)
         self.DateLimit = date
 
@@ -739,7 +746,7 @@ class BaseStorage :
         if (not startdate) and (not enddate) :
             return (None, None)
 
-        now = DateTime.now()
+        now = datetime.now()
         nameddates = ('yesterday', 'today', 'now', 'tomorrow')
         datedict = { "start" : startdate, "end" : enddate }
         for limit in datedict.keys() :
@@ -754,22 +761,22 @@ class BaseStorage :
                         dateval = dateval[:len(name)]
                         if limit == "start" :
                             if dateval == "yesterday" :
-                                dateval = (now - 1 + offset).Format("%Y%m%d000000")
+                                dateval = (now - timedelta(days=1) + timedelta(days=offset)).strftime("%Y%m%d000000")
                             elif dateval == "today" :
-                                dateval = (now + offset).Format("%Y%m%d000000")
+                                dateval = (now + timedelta(days=offset)).strftime("%Y%m%d000000")
                             elif dateval == "now" :
-                                dateval = (now + offset).Format("%Y%m%d%H%M%S")
+                                dateval = (now + timedelta(days=offset)).strftime("%Y%m%d%H%M%S")
                             else : # tomorrow
-                                dateval = (now + 1 + offset).Format("%Y%m%d000000")
+                                dateval = (now + timedelta(days=1) + timedelta(days=offset)).strftime("%Y%m%d000000")
                         else :
                             if dateval == "yesterday" :
-                                dateval = (now - 1 + offset).Format("%Y%m%d235959")
+                                dateval = (now - timedelta(days=1) + timedelta(days=offset)).strftime("%Y%m%d235959")
                             elif dateval == "today" :
-                                dateval = (now + offset).Format("%Y%m%d235959")
+                                dateval = (now + timedelta(days=offset)).strftime("%Y%m%d235959")
                             elif dateval == "now" :
-                                dateval = (now + offset).Format("%Y%m%d%H%M%S")
+                                dateval = (now + timedelta(days=offset)).strftime("%Y%m%d%H%M%S")
                             else : # tomorrow
-                                dateval = (now + 1 + offset).Format("%Y%m%d235959")
+                                dateval = (now + timedelta(days=1) + timedelta(days=offset)).strftime("%Y%m%d235959")
                         break
 
                 if not dateval.isdigit() :
@@ -785,8 +792,10 @@ class BaseStorage :
                         if limit == "start" :
                             dateval = "%s01 00:00:00" % dateval
                         else :
-                            mxdate = DateTime.ISO.ParseDateTime("%s01 00:00:00" % dateval)
-                            dateval = "%s%02i 23:59:59" % (dateval, mxdate.days_in_month)
+                            year = int(dateval[:4])
+                            month = int(dateval[4:6])
+                            days_in_month = calendar.monthrange(year, month)[1]
+                            dateval = "%s%02i 23:59:59" % (dateval, days_in_month)
                     elif lgdateval == 8 :
                         if limit == "start" :
                             dateval = "%s 00:00:00" % dateval
@@ -807,7 +816,7 @@ class BaseStorage :
                     else :
                         dateval = None
                     try :
-                        DateTime.ISO.ParseDateTime(dateval[:19])
+                        datetime.fromisoformat(dateval[:19].replace(' ', 'T'))
                     except :
                         dateval = None
                 datedict[limit] = dateval
@@ -833,10 +842,13 @@ def openConnection(pykotatool) :
     backendinfo = pykotatool.config.getStorageBackend()
     backend = backendinfo["storagebackend"]
     try :
-        storagebackend = imp.load_source("storagebackend",
-                                         os.path.join(os.path.dirname(__file__),
-                                                      "storages",
-                                                      "%s.py" % backend.lower()))
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("storagebackend",
+                                                     os.path.join(os.path.dirname(__file__),
+                                                                  "storages",
+                                                                  "%s.py" % backend.lower()))
+        storagebackend = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(storagebackend)
     except ImportError :
         raise PyKotaStorageError(_("Unsupported quota storage backend %s") % backend)
     else :

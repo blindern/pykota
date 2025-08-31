@@ -26,7 +26,8 @@ import os
 import pwd
 import locale
 import gettext
-from types import UnicodeType
+# In Python 3, all strings are unicode, so UnicodeType is just str
+UnicodeType = str
 
 from pykota.errors import PyKotaCommandLineError
 
